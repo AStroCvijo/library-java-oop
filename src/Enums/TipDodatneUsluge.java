@@ -1,0 +1,5 @@
+package Enums;
+
+public enum TipDodatneUsluge {
+    PRIORITETNO_PREUZIMANJE, PRIORITETNO_VRACANJE, PRODUZENO_ZADRAZAVANJE
+}
