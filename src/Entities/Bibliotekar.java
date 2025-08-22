@@ -11,7 +11,7 @@ public class Bibliotekar extends Korisnik {
     // Constructor
     public Bibliotekar(String firstName, String lastName, String gender, LocalDate birthDate, String phone,
                        String address, String username, String password, NivoStrucneSpreme levelOfEducation,
-                       Integer experience, Double salary) {
+                       Integer experience) {
 
         super(firstName, lastName, gender, birthDate, phone, address, username, password, TipKorisnika.BIBLITEKAR);
         this.LevelOfEducation = levelOfEducation;
