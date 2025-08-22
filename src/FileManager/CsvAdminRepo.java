@@ -2,9 +2,7 @@ package FileManager;
 
 import Entities.Administrator;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -55,6 +53,46 @@ public class CsvAdminRepo {
         return null;
     }
 
+    // Add to CsvAdminRepo class
+    public static boolean addAdminToCSV(String CSV_FILE_PATH, Administrator newAdmin) {
+        // First load existing admins
+        Administrator[] existingAdmins = loadAdministratorsFromCSV(CSV_FILE_PATH);
+        List<Administrator> adminList = new ArrayList<>();
+
+        if (existingAdmins != null) {
+            for (Administrator admin : existingAdmins) {
+                adminList.add(admin);
+            }
+        }
+
+        // Add new admin
+        adminList.add(newAdmin);
+
+        // Save back to CSV
+        return saveAdminsToCSV(CSV_FILE_PATH, adminList.toArray(new Administrator[0]));
+    }
+
+    public static boolean saveAdminsToCSV(String CSV_FILE_PATH, Administrator[] admins) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(CSV_FILE_PATH))) {
+            // Write header
+            bw.write("firstName,lastName,gender,birthDate,phone,address,username,password");
+            bw.newLine();
+
+            // Write each admin
+            for (Administrator admin : admins) {
+                bw.write(convertAdminToCSVLine(admin));
+                bw.newLine();
+            }
+
+            System.out.println("Successfully saved " + admins.length + " admins to CSV file.");
+            return true;
+
+        } catch (IOException e) {
+            System.out.println("Error saving admins to CSV: " + e.getMessage());
+            return false;
+        }
+    }
+
     private static Administrator createAdministratorFromCSV(String[] values) {
         String firstName = values[0].trim();
         String lastName = values[1].trim();
@@ -66,5 +104,18 @@ public class CsvAdminRepo {
         String password = values[7].trim();
 
         return new Administrator(firstName, lastName, gender, birthDate, phone, address, username, password);
+    }
+
+    private static String convertAdminToCSVLine(Administrator admin) {
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s",
+                admin.getFirstName(),
+                admin.getLastName(),
+                admin.getGender(),
+                admin.getBirthDate().format(DATE_FORMATTER),
+                admin.getPhone(),
+                admin.getAddress(),
+                admin.getUsername(),
+                admin.getPassword()
+        );
     }
 }

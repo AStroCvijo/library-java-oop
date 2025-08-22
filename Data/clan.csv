@@ -1,4 +1,4 @@
-firstName,lastName,gender,birthDate,phone,address,username,password,Category
+firstName,lastName,gender,birthDate,phone,address,username,password,category
 Jovana,Jović,FEMALE,2015-03-12,+381641235001,Bulevar Mihajla Pupina 15,123,123,DETE
 Marko,Marković,MALE,2010-07-25,+381641235002,Nemanjina 22,clan.marko,MarkoPass,UCENIK
 Ana,Anić,FEMALE,2008-11-08,+381641235003,Resavska 33,clan.ana,Ana456,UCENIK
@@ -9,3 +9,4 @@ Ljubica,Ljubić,FEMALE,1945-02-28,+381641235007,Vojvode Misica 12,clan.ljubica,L
 Ivan,Ivanović,MALE,1995-08-17,+381641235008,Brace Jerkovic 34,clan.ivan,IvanBib,OSTALO
 Sandra,Sandić,FEMALE,1992-04-22,+381641235009,Ruzveltova 56,clan.sandra,SandraPass,OSTALO
 Dragan,Dragić,MALE,1988-06-30,+381641235010,Bulevar kralja Aleksandra 78,clan.dragan,Dragan123,OSTALO
+Jovan,Cvijanovic,MUSKI,2004-05-28,+381659447550,Novi Sad Radnicka 14,jovan.cvijanovic2@gmail.com,temp123,STUDENT

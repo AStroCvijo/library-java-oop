@@ -2,9 +2,7 @@ package FileManager;
 
 import Entities.Bibliotekar;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -56,6 +54,46 @@ public class CsvLibrarianRepo {
         return null;
     }
 
+    // Add to CsvLibrarianRepo class
+    public static boolean addLibrarianToCSV(String CSV_FILE_PATH, Bibliotekar newLibrarian) {
+        // First load existing librarians
+        Bibliotekar[] existingLibrarians = loadLibrariansFromCSV(CSV_FILE_PATH);
+        List<Bibliotekar> librarianList = new ArrayList<>();
+
+        if (existingLibrarians != null) {
+            for (Bibliotekar librarian : existingLibrarians) {
+                librarianList.add(librarian);
+            }
+        }
+
+        // Add new librarian
+        librarianList.add(newLibrarian);
+
+        // Save back to CSV
+        return saveLibrariansToCSV(CSV_FILE_PATH, librarianList.toArray(new Bibliotekar[0]));
+    }
+
+    public static boolean saveLibrariansToCSV(String CSV_FILE_PATH, Bibliotekar[] librarians) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(CSV_FILE_PATH))) {
+            // Write header
+            bw.write("firstName,lastName,gender,birthDate,phone,address,username,password,educationLevel,experience");
+            bw.newLine();
+
+            // Write each librarian
+            for (Bibliotekar librarian : librarians) {
+                bw.write(convertLibrarianToCSVLine(librarian));
+                bw.newLine();
+            }
+
+            System.out.println("Successfully saved " + librarians.length + " librarians to CSV file.");
+            return true;
+
+        } catch (IOException e) {
+            System.out.println("Error saving librarians to CSV: " + e.getMessage());
+            return false;
+        }
+    }
+
     private static Bibliotekar createLibrarianFromCSV(String[] values) {
         String firstName = values[0].trim();
         String lastName = values[1].trim();
@@ -69,5 +107,20 @@ public class CsvLibrarianRepo {
         Integer Experience = Integer.valueOf(values[9].trim());
 
         return new Bibliotekar(firstName, lastName, gender, birthDate, phone, address, username, password, levelOfEducation, Experience);
+    }
+
+    private static String convertLibrarianToCSVLine(Bibliotekar librarian) {
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%d",
+                librarian.getFirstName(),
+                librarian.getLastName(),
+                librarian.getGender(),
+                librarian.getBirthDate().format(DATE_FORMATTER),
+                librarian.getPhone(),
+                librarian.getAddress(),
+                librarian.getUsername(),
+                librarian.getPassword(),
+                librarian.getLevelOfEducation().name(),
+                librarian.getExperience()
+        );
     }
 }
