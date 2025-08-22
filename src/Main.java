@@ -1,21 +1,30 @@
-import java.time.LocalDate;
 import java.util.Scanner;
-import Enums.*;
 import Entities.*;
+import FileManager.CsvAdminRepo;
 
 public class Main {
-    // Sample administrator data (in real application, this would come from database)
-    private static Administrator[] administrators = {
-            new Administrator("admin", "admin", "MALE", LocalDate.of(1985, 5, 15),
-                    "123-456-789", "Admin Address", "admin", "admin123"),
-            new Administrator("john", "doe", "MALE", LocalDate.of(1990, 8, 20),
-                    "555-1234", "123 Main St", "johndoe", "password123")
-    };
+    // Array of Administrators
+    private static Administrator[] administrators = {};
+    private static Bibliotekar[] librarians = {};
+    private static Clan[] users = {};
+
+    // Path to Administrator, Librarian, User CSV
+    private static final String CSV_ADMIN_FILE_PATH = "Data/administrator.csv";
+    private static final String CSV_LIBRARIAN_FILE_PATH = "Data/zaposleni.csv";
+    private static final String CSV_USER_FILE_PATH = "Data/clan.csv";
 
     public static void main(String[] args) {
+        // Load administrators, librarians and users from CSV file
+        administrators = CsvAdminRepo.loadAdministratorsFromCSV(CSV_ADMIN_FILE_PATH);
+
+        // If there are no administrators
+        if (administrators == null || administrators.length == 0) {
+            System.out.println("No administrators loaded from CSV.");
+        }
+
         Scanner scanner = new Scanner(System.in);
         boolean loggedIn = false;
-        Administrator currentAdmin = null;
+        Administrator currentAdmin;
 
         while (!loggedIn) {
             System.out.println("=== ADMINISTRATOR LOGIN ===");
@@ -38,6 +47,7 @@ public class Main {
         scanner.close();
     }
 
+    // Function for authenticating admins
     private static Administrator authenticate(String username, String password) {
         for (Administrator admin : administrators) {
             if (admin.getUsername().equals(username) && admin.getPassword().equals(password)) {
@@ -47,70 +57,8 @@ public class Main {
         return null;
     }
 
+    // Function for printing the admin menu
     private static void showAdminMenu(Administrator admin, Scanner scanner) {
-        boolean running = true;
-
-        while (running) {
-            System.out.println("\n=== ADMIN DASHBOARD ===");
-            System.out.println("Logged in as: " + admin.getFirstName() + " " + admin.getLastName());
-            System.out.println("\n1. View Profile");
-            System.out.println("2. Change Password");
-            System.out.println("3. System Settings");
-            System.out.println("4. Logout");
-            System.out.print("Choose an option: ");
-
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-
-            switch (choice) {
-                case 1:
-                    viewProfile(admin);
-                    break;
-                case 2:
-                    changePassword(admin, scanner);
-                    break;
-                case 3:
-                    System.out.println("System settings functionality would go here.");
-                    break;
-                case 4:
-                    System.out.println("Logging out... Goodbye!");
-                    running = false;
-                    break;
-                default:
-                    System.out.println("Invalid option. Please try again.");
-            }
-        }
-    }
-
-    private static void viewProfile(Administrator admin) {
-        System.out.println("\n=== PROFILE INFORMATION ===");
-        System.out.println("Name: " + admin.getFirstName() + " " + admin.getLastName());
-        System.out.println("Gender: " + admin.getGender());
-        System.out.println("Birth Date: " + admin.getBirthDate());
-        System.out.println("Phone: " + admin.getPhone());
-        System.out.println("Address: " + admin.getAddress());
-        System.out.println("Username: " + admin.getUsername());
-    }
-
-    private static void changePassword(Administrator admin, Scanner scanner) {
-        System.out.println("\n=== CHANGE PASSWORD ===");
-        System.out.print("Enter current password: ");
-        String currentPassword = scanner.nextLine();
-
-        if (currentPassword.equals(admin.getPassword())) {
-            System.out.print("Enter new password: ");
-            String newPassword = scanner.nextLine();
-            System.out.print("Confirm new password: ");
-            String confirmPassword = scanner.nextLine();
-
-            if (newPassword.equals(confirmPassword)) {
-                admin.setPassword(newPassword);
-                System.out.println("Password changed successfully!");
-            } else {
-                System.out.println("Passwords do not match!");
-            }
-        } else {
-            System.out.println("Current password is incorrect!");
-        }
+        System.out.println("Welcome Administrator: " + admin.getFirstName() + " " + admin.getLastName());
     }
 }

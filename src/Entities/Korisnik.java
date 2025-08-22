@@ -1,6 +1,7 @@
 package Entities;
 
 import java.time.LocalDate;
+import Enums.*;
 
 class Korisnik {
     private String firstName;
@@ -11,10 +12,11 @@ class Korisnik {
     private String address;
     private String username;
     private String password;
+    private TipKorisnika userType;
 
     // Constructor
     public Korisnik(String firstName, String lastName, String gender, LocalDate birthDate,
-                String phone, String address, String username, String password) {
+                String phone, String address, String username, String password, TipKorisnika userType) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -23,6 +25,7 @@ class Korisnik {
         this.address = address;
         this.username = username;
         this.password = password;
+        this.userType = userType;
     }
 
     // Getters and setters
@@ -49,4 +52,7 @@ class Korisnik {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public TipKorisnika getUserType() { return userType; }
+    public void setUserType(TipKorisnika userType) { this.userType = userType; }
 }

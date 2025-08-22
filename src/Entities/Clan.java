@@ -1,19 +1,21 @@
 package Entities;
+import Enums.KategorijaClana;
 import Enums.Pol;
+import Enums.TipKorisnika;
 
 import java.time.LocalDate;
 
-class Clan extends Korisnik {
-    private String Category;
+public class Clan extends Korisnik {
+    private KategorijaClana Category;
 
     // Constructor
-    public Clan(String firstName, String lastName, String gender, LocalDate birthDate, String phone, String address, String username, String password, String Category) {
-        super(firstName, lastName, gender, birthDate, phone, address, username, password);
+    public Clan(String firstName, String lastName, String gender, LocalDate birthDate, String phone, String address, String username, String password, KategorijaClana Category) {
+        super(firstName, lastName, gender, birthDate, phone, address, username, password, TipKorisnika.CLAN);
 
         this.Category = Category;
     }
 
     // Getters and Setters
-    public String getCategory() { return Category; }
-    public void setCategory(String Category) { Category = Category; }
+    public KategorijaClana getCategory() { return Category; }
+    public void setCategory(KategorijaClana Category) { Category = Category; }
 }
