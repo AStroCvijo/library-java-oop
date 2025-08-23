@@ -1,4 +1,4 @@
-package UI;
+package CLI;
 
 import Entities.Administrator;
 import Entities.Bibliotekar;

@@ -1,4 +1,4 @@
-package UI;
+package CLI;
 
 import Entities.Bibliotekar;
 
