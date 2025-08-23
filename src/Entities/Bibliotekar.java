@@ -9,7 +9,7 @@ public class Bibliotekar extends Korisnik {
     private Double Salary;
 
     // Constructor
-    public Bibliotekar(String firstName, String lastName, String gender, LocalDate birthDate, String phone,
+    public Bibliotekar(String firstName, String lastName, Pol gender, LocalDate birthDate, String phone,
                        String address, String username, String password, NivoStrucneSpreme levelOfEducation,
                        Integer experience) {
 

@@ -1,11 +1,11 @@
 firstName,lastName,gender,birthDate,phone,address,username,password,levelOfEducation,experience
-Marko,Marković,MALE,1985-06-15,+381641234567,Bulevar kralja Aleksandra 123,123,123,VI_STEPEN,8
-Ana,Anić,FEMALE,1990-03-22,+381641234568,Kneza Miloša 45,bibliotekar.ana,AnaPass456!,VII_STEPEN,5
-Ivan,Ivanović,MALE,1988-11-08,+381641234569,Nemanjina 78,bibliotekar.ivan,IvanBib789!,IV_STEPEN,3
-Jelena,Jelenić,FEMALE,1992-07-30,+381641234570,Resavska 33,bibliotekar.jelena,Jelena2024!,VI_STEPEN,2
-Nikola,Nikolić,MALE,1987-01-14,+381641234571,Kralja Milana 112,bibliotekar.nikola,NikolaBib!,V_STEPEN,10
-Marija,Marjanović,FEMALE,1995-09-18,+381641234572,Djordja Stanojevica 15,bibliotekar.marija,MarijaPass!,VII_STEPEN,1
-Petar,Petrović,MALE,1983-12-05,+381641234573,Bulevar oslobodjenja 67,bibliotekar.petar,Petar123!,VI_STEPEN,15
-Sandra,Sandić,FEMALE,1993-04-25,+381641234574,Vojvode Misica 22,bibliotekar.sandra,SandraBib!,IV_STEPEN,4
-Dragan,Dragić,MALE,1980-08-12,+381641234575,Brace Jerkovic 89,bibliotekar.dragan,DraganBib!,VII_STEPEN,12
-Milena,Milenković,FEMALE,1989-11-30,+381641234576,Ruzveltova 44,bibliotekar.milena,MilenaPass!,V_STEPEN,6
+Marko,Marković,MUSKI,1985-06-15,+381641234567,Bulevar kralja Aleksandra 123,123,123,VI_STEPEN,8
+Ana,Anić,ZENSKI,1990-03-22,+381641234568,Kneza Miloša 45,bibliotekar.ana,AnaPass456!,VII_STEPEN,5
+Ivan,Ivanović,MUSKI,1988-11-08,+381641234569,Nemanjina 78,bibliotekar.ivan,IvanBib789!,IV_STEPEN,3
+Jelena,Jelenić,ZENSKI,1992-07-30,+381641234570,Resavska 33,bibliotekar.jelena,Jelena2024!,VI_STEPEN,2
+Nikola,Nikolić,MUSKI,1987-01-14,+381641234571,Kralja Milana 112,bibliotekar.nikola,NikolaBib!,V_STEPEN,10
+Marija,Marjanović,ZENSKI,1995-09-18,+381641234572,Djordja Stanojevica 15,bibliotekar.marija,MarijaPass!,VII_STEPEN,1
+Petar,Petrović,MUSKI,1983-12-05,+381641234573,Bulevar oslobodjenja 67,bibliotekar.petar,Petar123!,VI_STEPEN,15
+Sandra,Sandić,ZENSKI,1993-04-25,+381641234574,Vojvode Misica 22,bibliotekar.sandra,SandraBib!,IV_STEPEN,4
+Dragan,Dragić,MUSKI,1980-08-12,+381641234575,Brace Jerkovic 89,bibliotekar.dragan,DraganBib!,VII_STEPEN,12
+Milena,Milenković,ZENSKI,1989-11-30,+381641234576,Ruzveltova 44,bibliotekar.milena,MilenaPass!,V_STEPEN,6

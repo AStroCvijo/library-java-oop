@@ -97,7 +97,7 @@ public class CsvLibrarianRepo {
     private static Bibliotekar createLibrarianFromCSV(String[] values) {
         String firstName = values[0].trim();
         String lastName = values[1].trim();
-        String gender = values[2].trim();
+        Pol gender = Pol.valueOf(values[2].trim());
         LocalDate birthDate = LocalDate.parse(values[3].trim(), DATE_FORMATTER);
         String phone = values[4].trim();
         String address = values[5].trim();

@@ -6,7 +6,7 @@ import Enums.*;
 class Korisnik {
     private String firstName;
     private String lastName;
-    private String gender;
+    private Pol gender;
     private LocalDate birthDate;
     private String phone;
     private String address;
@@ -15,7 +15,7 @@ class Korisnik {
     private TipKorisnika userType;
 
     // Constructor
-    public Korisnik(String firstName, String lastName, String gender, LocalDate birthDate,
+    public Korisnik(String firstName, String lastName, Pol gender, LocalDate birthDate,
                 String phone, String address, String username, String password, TipKorisnika userType) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -35,8 +35,8 @@ class Korisnik {
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
+    public Pol getGender() { return gender; }
+    public void setGender(Pol gender) { this.gender = gender; }
 
     public LocalDate getBirthDate() { return birthDate; }
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }

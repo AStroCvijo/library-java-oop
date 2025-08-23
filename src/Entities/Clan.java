@@ -9,7 +9,7 @@ public class Clan extends Korisnik {
     private KategorijaClana Category;
 
     // Constructor
-    public Clan(String firstName, String lastName, String gender, LocalDate birthDate, String phone, String address, String username, String password, KategorijaClana Category) {
+    public Clan(String firstName, String lastName, Pol gender, LocalDate birthDate, String phone, String address, String username, String password, KategorijaClana Category) {
         super(firstName, lastName, gender, birthDate, phone, address, username, password, TipKorisnika.CLAN);
 
         this.Category = Category;
