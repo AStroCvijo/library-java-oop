@@ -11,6 +11,7 @@ public class BookRental {
     private LocalDate actualReturnDate;
     private double penalty;
 
+    // Constructor
     public BookRental(int id, int reservationId, int bookCopyId,
                       LocalDate rentalDate, LocalDate expectedReturnDate,
                       LocalDate actualReturnDate, double penalty) {
@@ -23,7 +24,7 @@ public class BookRental {
         this.penalty = penalty;
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

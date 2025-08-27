@@ -22,16 +22,30 @@ public class BookManager implements IManager<Book> {
 
     @Override
     public void add(Book book) {
-        books.add(book);
+        Book existingBook = getBookByIsbn(book.getIsbn());
+
+        if (existingBook != null) {
+            existingBook.incrementCopies(book.getTotalCopies());
+            update(existingBook);
+        } else {
+            books.add(book);
+        }
         saveToFile();
     }
 
     @Override
     public Book getById(int id) {
         return books.stream()
-                .filter(b -> b.getId() == id).
-                findFirst().
-                orElse(null);
+                .filter(b -> b.getId() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Book getBookByIsbn(String isbn) {
+        return books.stream()
+                .filter(b -> b.getIsbn().equals(isbn))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -70,18 +84,19 @@ public class BookManager implements IManager<Book> {
                 }
 
                 String[] values = line.split(",");
-                if (values.length >= 8) {
+                if (values.length >= 9) {
                     int id = Integer.parseInt(values[0]);
                     String title = values[1];
                     String author = values[2];
                     String isbn = values[3];
                     int publicationYear = Integer.parseInt(values[4]);
-                    int  genreId = Integer.parseInt(values[5]);
-                    int copyNumber = Integer.parseInt(values[6]);
-                    BookStatus status = BookStatus.valueOf(values[7]);
+                    int genreId = Integer.parseInt(values[5]);
+                    int totalCopies = Integer.parseInt(values[6]);
+                    int availableCopies = Integer.parseInt(values[7]);
+                    BookStatus status = BookStatus.valueOf(values[8]);
 
                     Book book = new Book(id, title, author, isbn, publicationYear,
-                            genreId, copyNumber, status);
+                            genreId, totalCopies, availableCopies, status);
                     books.add(book);
                 }
             }
@@ -93,7 +108,7 @@ public class BookManager implements IManager<Book> {
     @Override
     public void saveToFile() {
         try (PrintWriter writer = new PrintWriter(new File(filename))) {
-            writer.println("id,title,author,isbn,publicationYear,genreId,copyNumber,status");
+            writer.println("id,title,author,isbn,publicationYear,genreId,totalCopies,availableCopies,status");
 
             for (Book book : books) {
                 writer.println(book.getId() + "," +
@@ -102,7 +117,8 @@ public class BookManager implements IManager<Book> {
                         book.getIsbn() + "," +
                         book.getPublicationYear() + "," +
                         book.getGenreId() + "," +
-                        book.getCopyNumber() + "," +
+                        book.getTotalCopies() + "," +
+                        book.getAvailableCopies() + "," +
                         book.getStatus());
             }
         } catch (IOException e) {
@@ -114,28 +130,80 @@ public class BookManager implements IManager<Book> {
         List<Book> availableBooks = new ArrayList<>();
 
         for (Book book : books) {
-            if (book.getStatus() == BookStatus.AVAILABLE) {
-                boolean isReserved = false;
+            if (book.isAvailable()) {
+                int reservedCopies = countReservedCopies(book, startPeriod, endPeriod, reservationManager);
+                int actuallyAvailableCopies = book.getAvailableCopies() - reservedCopies;
 
-                for (Reservation reservation : reservationManager.getAll()) {
-                    if (reservation.getBookId() == book.getId() &&
-                            (reservation.getStatus() == ReservationStatus.CONFIRMED ||
-                                    reservation.getStatus() == ReservationStatus.PENDING)) {
-
-                        if (!(reservation.getReturnDate().isBefore(startPeriod) ||
-                                reservation.getPickupDate().isAfter(endPeriod))) {
-                            isReserved = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!isReserved) {
-                    availableBooks.add(book);
+                if (actuallyAvailableCopies > 0) {
+                    Book availableBook = new Book(
+                            book.getId(),
+                            book.getTitle(),
+                            book.getAuthor(),
+                            book.getIsbn(),
+                            book.getPublicationYear(),
+                            book.getGenreId(),
+                            book.getTotalCopies(),
+                            actuallyAvailableCopies,
+                            book.getStatus()
+                    );
+                    availableBooks.add(availableBook);
                 }
             }
         }
 
         return availableBooks;
+    }
+
+    private int countReservedCopies(Book book, LocalDate startPeriod, LocalDate endPeriod,
+                                    ReservationManager reservationManager) {
+        int reservedCount = 0;
+
+        for (Reservation reservation : reservationManager.getAll()) {
+            if (reservation.getBookId() == book.getId() &&
+                    (reservation.getStatus() == ReservationStatus.CONFIRMED ||
+                            reservation.getStatus() == ReservationStatus.PENDING)) {
+
+                if (reservationOverlaps(reservation, startPeriod, endPeriod)) {
+                    reservedCount++;
+                }
+
+                if (reservedCount >= book.getAvailableCopies()) {
+                    break;
+                }
+            }
+        }
+
+        return reservedCount;
+    }
+
+    private boolean reservationOverlaps(Reservation reservation, LocalDate startPeriod, LocalDate endPeriod) {
+        LocalDate pickup = reservation.getPickupDate();
+        LocalDate returnDate = reservation.getReturnDate();
+
+        return !(returnDate.isBefore(startPeriod) || pickup.isAfter(endPeriod));
+    }
+
+    public void addCopies(String isbn, int numberOfCopies) {
+        Book book = getBookByIsbn(isbn);
+        if (book != null) {
+            book.incrementCopies(numberOfCopies);
+            update(book);
+        } else {
+            throw new IllegalArgumentException("Book with ISBN " + isbn + " not found");
+        }
+    }
+
+    public void removeCopies(String isbn, int numberOfCopies) {
+        Book book = getBookByIsbn(isbn);
+        if (book != null) {
+            if (numberOfCopies > book.getTotalCopies() - (book.getTotalCopies() - book.getAvailableCopies())) {
+                throw new IllegalArgumentException("Cannot remove more copies than are available");
+            }
+            book.setTotalCopies(book.getTotalCopies() - numberOfCopies);
+            book.setAvailableCopies(book.getAvailableCopies() - numberOfCopies);
+            update(book);
+        } else {
+            throw new IllegalArgumentException("Book with ISBN " + isbn + " not found");
+        }
     }
 }

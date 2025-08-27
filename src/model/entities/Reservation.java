@@ -13,6 +13,7 @@ public class Reservation {
     private ReservationStatus status;
     private double totalPrice;
 
+    // Constructor
     public Reservation(int id, int memberId, int bookId,
                        LocalDate reservationDate, LocalDate pickupDate,
                        LocalDate returnDate, ReservationStatus status,
@@ -27,7 +28,7 @@ public class Reservation {
         this.totalPrice = totalPrice;
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

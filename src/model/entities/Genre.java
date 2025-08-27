@@ -5,13 +5,14 @@ public class Genre {
     private String name;
     private String description;
 
+    // Constructor
     public Genre(int id, String name, String description) {
         this.id = id;
         this.name = name;
         this.description = description;
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

@@ -10,6 +10,7 @@ public class Membership {
     private boolean isActive;
     private String type;
 
+    // Constructor
     public Membership(int id, int memberId, LocalDate startDate,
                       LocalDate endDate, boolean isActive, String type) {
         this.id = id;
@@ -20,7 +21,7 @@ public class Membership {
         this.type = type;
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

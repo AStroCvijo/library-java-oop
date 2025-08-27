@@ -108,22 +108,22 @@ public class Main {
         // 7. Dodavanje knjiga
         Book book1 = new Book(
                 1, "Ana Karenjina", "Lav Tolstoj", "9788610033647",
-                1877, 1, 1, BookStatus.AVAILABLE
+                1877, 1, 1, 1, BookStatus.AVAILABLE
         );
 
         Book book2 = new Book(
                 2, "Ana Karenjina", "Lav Tolstoj", "9788610033647",
-                1877, 1, 2, BookStatus.AVAILABLE
+                1877, 1, 1, 1, BookStatus.AVAILABLE
         );
 
         Book book3 = new Book(
                 3, "Rat i mir", "Lav Tolstoj", "9788661451072",
-                1869, 1, 1, BookStatus.AVAILABLE
+                1869, 1, 1, 1 ,BookStatus.AVAILABLE
         );
 
         Book book4 = new Book(
-                4, "1984", "Džordž Orvel", "9788661451072",
-                1949, 3, 1, BookStatus.AVAILABLE
+                4, "1984", "Džordž Orvel", "9788661451071",
+                1949, 3, 1, 1, BookStatus.AVAILABLE
         );
 
         bookManager.add(book1);
@@ -188,7 +188,7 @@ public class Main {
 
         System.out.println("\nDostupne knjige u periodu 01.11.2025 - 30.11.2025:");
         for (Book book : bookManager.getAvailableBooks(startPeriod1, endPeriod1, reservationManager)) {
-            System.out.println(book.getTitle() + " - " + book.getAuthor());
+            System.out.println(book.getTitle() + " - " + book.getAuthor() + " - " + book.getAvailableCopies());
         }
 
         // 11. Kreiranje rezervacije za Milicu Milić za Anu Karenjinu
@@ -207,7 +207,7 @@ public class Main {
 
         System.out.println("\nDostupne knjige u periodu 01.12.2025 - 12.12.2025:");
         for (Book book : bookManager.getAvailableBooks(startPeriod2, endPeriod2, reservationManager)) {
-            System.out.println(book.getTitle() + " - " + book.getAuthor());
+            System.out.println(book.getTitle() + " - " + book.getAuthor() + " - " + book.getAvailableCopies());
         }
 
         // 13. Kreiranje rezervacije za Anu Anić

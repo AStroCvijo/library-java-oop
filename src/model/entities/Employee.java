@@ -8,6 +8,7 @@ public class Employee extends User {
     private int yearsOfExperience;
     private double baseSalary;
 
+    // Constructor
     public Employee(int id, String firstName, String lastName,
                     model.enums.Gender gender, LocalDate birthDate,
                     String phone, String address, String username,
@@ -18,6 +19,8 @@ public class Employee extends User {
         this.yearsOfExperience = yearsOfExperience;
         this.baseSalary = baseSalary;
     }
+
+    // Helper functions
 
     public double calculateSalary() {
         double coefficient = getCoefficientForEducation();
@@ -34,7 +37,7 @@ public class Employee extends User {
         }
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public EmployeeEducationLevel getEducationLevel() { return educationLevel; }
     public void setEducationLevel(EmployeeEducationLevel educationLevel) {}
 

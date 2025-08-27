@@ -1,5 +1,4 @@
-id,title,author,isbn,publicationYear,genreId,copyNumber,status
-1,Ana Karenjina,Lav Tolstoj,9788610033647,1877,1,1,AVAILABLE
-2,Ana Karenjina,Lav Tolstoj,9788610033647,1877,1,2,AVAILABLE
-3,Rat i mir,Lav Tolstoj,9788661451072,1869,1,1,AVAILABLE
-4,1984,Džordž Orvel,9788661451072,1949,3,1,AVAILABLE
+id,title,author,isbn,publicationYear,genreId,totalCopies,availableCopies,status
+1,Ana Karenjina,Lav Tolstoj,9788610033647,1877,1,2,2,AVAILABLE
+3,Rat i mir,Lav Tolstoj,9788661451072,1869,1,1,1,AVAILABLE
+4,1984,Džordž Orvel,9788661451071,1949,3,1,1,AVAILABLE

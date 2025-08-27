@@ -8,6 +8,7 @@ public class Member extends User {
     private MembershipCategory category;
     private Membership membership;
 
+    // Constructor
     public Member(int id, String firstName, String lastName,
                   Gender gender, LocalDate birthDate,
                   String phone, String address, String username,
@@ -16,7 +17,7 @@ public class Member extends User {
         this.category = category;
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public MembershipCategory getCategory() { return category; }
     public void setCategory(MembershipCategory category) { this.category = category; }
 

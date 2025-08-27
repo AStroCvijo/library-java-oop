@@ -11,6 +11,7 @@ public class PriceListItem {
     private LocalDate validFrom;
     private LocalDate validTo;
 
+    // Constructor
     public PriceListItem(int id, PriceListItemType type, String description,
                          double price, LocalDate validFrom, LocalDate validTo) {
         this.id = id;
@@ -21,7 +22,7 @@ public class PriceListItem {
         this.validTo = validTo;
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

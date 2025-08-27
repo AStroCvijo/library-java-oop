@@ -7,6 +7,7 @@ public class ReservationService {
     private int quantity;
     private double price;
 
+    // Constructor
     public ReservationService(int id, int reservationId,
                               int additionalServiceId, int quantity,
                               double price) {
@@ -17,7 +18,7 @@ public class ReservationService {
         this.price = price;
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

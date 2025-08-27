@@ -14,7 +14,7 @@ public abstract class User {
     protected String username;
     protected String password;
 
-    // Konstruktori, getteri i setteri
+    // Constructor
     public User(int id, String firstName, String lastName, Gender gender,
                 LocalDate birthDate, String phone, String address,
                 String username, String password) {
@@ -29,7 +29,7 @@ public abstract class User {
         this.password = password;
     }
 
-    // Getteri i setteri
+    // Getter and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
