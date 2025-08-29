@@ -1,27 +1,38 @@
 package model.entities;
 
 import model.enums.EmployeeEducationLevel;
+import model.enums.EmployeeRole; // Dodajte import
 import java.time.LocalDate;
 
 public class Employee extends User {
     private EmployeeEducationLevel educationLevel;
     private int yearsOfExperience;
     private double baseSalary;
+    private EmployeeRole role; // Dodajte atribut za ulogu
 
-    // Constructor
+    // Constructor - dodajte role parametar
     public Employee(int id, String firstName, String lastName,
                     model.enums.Gender gender, LocalDate birthDate,
                     String phone, String address, String username,
                     String password, EmployeeEducationLevel educationLevel,
-                    int yearsOfExperience, double baseSalary) {
+                    int yearsOfExperience, double baseSalary, EmployeeRole role) { // Dodajte role
         super(id, firstName, lastName, gender, birthDate, phone, address, username, password);
         this.educationLevel = educationLevel;
         this.yearsOfExperience = yearsOfExperience;
         this.baseSalary = baseSalary;
+        this.role = role; // Inicijalizujte role
     }
 
-    // Helper functions
+    // Getter i setter za role
+    public EmployeeRole getRole() {
+        return role;
+    }
 
+    public void setRole(EmployeeRole role) {
+        this.role = role;
+    }
+
+    // Ostatak koda ostaje isti...
     public double calculateSalary() {
         double coefficient = getCoefficientForEducation();
         return baseSalary * (coefficient + 0.004 * yearsOfExperience);

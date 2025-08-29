@@ -69,7 +69,7 @@ public class MemberManager implements IManager<Member> {
                 }
 
                 String[] data = line.split(",");
-                if (data.length >= 10) {
+                if (data.length >= 11) {
                     int id = Integer.parseInt(data[0]);
                     String firstName = data[1];
                     String lastName = data[2];
@@ -80,10 +80,11 @@ public class MemberManager implements IManager<Member> {
                     String username = data[7];
                     String password = data[8];
                     MembershipCategory category = data[9].equals("null") ? null : MembershipCategory.valueOf(data[9]);
+                    int membershipId = Integer.parseInt(data[10]);
 
                     Member member = new Member(id, firstName, lastName, gender,
                             birthDate, phone, address, username,
-                            password, category);
+                            password, category, membershipId);
                     members.add(member);
                 }
             }
@@ -95,7 +96,7 @@ public class MemberManager implements IManager<Member> {
     @Override
     public void saveToFile() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
-            writer.println("id,firstName,lastName,gender,birthDate,phone,address,username,password,category");
+            writer.println("id,firstName,lastName,gender,birthDate,phone,address,username,password,category,membershipId");
 
             for (Member member : members) {
                 writer.println(member.getId() + "," +
@@ -107,7 +108,8 @@ public class MemberManager implements IManager<Member> {
                         member.getAddress() + "," +
                         member.getUsername() + "," +
                         member.getPassword() + "," +
-                        (member.getCategory() != null ? member.getCategory().name() : "null"));
+                        (member.getCategory() != null ? member.getCategory().name() : "null") + "," +
+                        member.getMembershipId());
             }
         } catch (IOException e) {
             System.out.println("Error saving members: " + e.getMessage());

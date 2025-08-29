@@ -3,6 +3,7 @@ package model.managers;
 import model.entities.Employee;
 import model.enums.EmployeeEducationLevel;
 import model.enums.Gender;
+import model.enums.EmployeeRole;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -69,7 +70,7 @@ public class EmployeeManager implements IManager<Employee> {
                 }
 
                 String[] data = line.split(",");
-                if (data.length >= 12) {
+                if (data.length >= 13) {
                     int id = Integer.parseInt(data[0]);
                     String firstName = data[1];
                     String lastName = data[2];
@@ -82,11 +83,12 @@ public class EmployeeManager implements IManager<Employee> {
                     EmployeeEducationLevel educationLevel = EmployeeEducationLevel.valueOf(data[9]);
                     int yearsOfExperience = Integer.parseInt(data[10]);
                     double baseSalary = Double.parseDouble(data[11]);
+                    EmployeeRole role = EmployeeRole.valueOf(data[12]);
 
                     Employee employee = new Employee(id, firstName, lastName, gender,
                             birthDate, phone, address, username,
                             password, educationLevel,
-                            yearsOfExperience, baseSalary);
+                            yearsOfExperience, baseSalary, role);
                     employees.add(employee);
                 }
             }
@@ -112,7 +114,9 @@ public class EmployeeManager implements IManager<Employee> {
                         employee.getPassword() + "," +
                         employee.getEducationLevel() + "," +
                         employee.getYearsOfExperience() + "," +
-                        employee.getBaseSalary());
+                        employee.getBaseSalary() + "," +
+                        employee.getRole());
+
             }
         } catch (IOException e) {
             System.out.println("Error saving employees: " + e.getMessage());

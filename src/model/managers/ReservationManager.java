@@ -1,6 +1,5 @@
 package model.managers;
 
-import model.entities.Employee;
 import model.entities.Reservation;
 import model.enums.ReservationStatus;
 

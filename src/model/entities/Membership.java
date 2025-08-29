@@ -10,9 +10,7 @@ public class Membership {
     private boolean isActive;
     private String type;
 
-    // Constructor
-    public Membership(int id, int memberId, LocalDate startDate,
-                      LocalDate endDate, boolean isActive, String type) {
+    public Membership(int id, int memberId, LocalDate startDate, LocalDate endDate, boolean isActive, String type) {
         this.id = id;
         this.memberId = memberId;
         this.startDate = startDate;
@@ -21,7 +19,7 @@ public class Membership {
         this.type = type;
     }
 
-    // Getter and setters
+    // Getters and setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -35,7 +33,7 @@ public class Membership {
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 
     public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { this.isActive = active; }
+    public void setActive(boolean active) { isActive = active; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }

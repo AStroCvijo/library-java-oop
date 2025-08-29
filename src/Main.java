@@ -10,6 +10,7 @@ public class Main {
     private static GenreManager genreManager;
     private static ReservationManager reservationManager;
     private static PriceListManager priceListManager;
+    private static MembershipManager membershipManager;
 
     public static void main(String[] args) {
         initializeManagers();
@@ -23,6 +24,7 @@ public class Main {
         genreManager = new GenreManager("data/genres.csv");
         reservationManager = new ReservationManager("data/reservations.csv");
         priceListManager = new PriceListManager("data/pricelist.csv");
+        membershipManager = new MembershipManager("data/memberships.csv");
     }
 
     private static void runTestScenario() {
@@ -33,7 +35,8 @@ public class Main {
                 1, "Pera", "Perić", Gender.MALE,
                 LocalDate.of(1980, 5, 15), "0611234567",
                 "Glavna ulica 1", "pera.peric", "admin123",
-                EmployeeEducationLevel.BACHELOR, 10, 50000
+                EmployeeEducationLevel.BACHELOR, 10, 50000,
+                EmployeeRole.ADMINISTRATOR
         );
         employeeManager.add(admin);
         System.out.println("Kreiran administrator: Pera Perić");
@@ -43,14 +46,16 @@ public class Main {
                 2, "Mika", "Mikić", Gender.MALE,
                 LocalDate.of(1990, 8, 22), "0612345678",
                 "Prva ulica 2", "mika.mikic", "librarian123",
-                EmployeeEducationLevel.BACHELOR, 5, 40000
+                EmployeeEducationLevel.BACHELOR, 5, 40000,
+                EmployeeRole.LIBRARIAN
         );
 
         Employee librarian2 = new Employee(
                 3, "Nikola", "Nikolić", Gender.MALE,
                 LocalDate.of(1985, 3, 10), "0613456789",
                 "Druga ulica 3", "nikola.nikolic", "librarian456",
-                EmployeeEducationLevel.MASTER, 8, 45000
+                EmployeeEducationLevel.MASTER, 8, 45000,
+                EmployeeRole.LIBRARIAN
         );
 
         employeeManager.add(librarian1);
@@ -66,34 +71,36 @@ public class Main {
 
         // 4. Uklanjanje Nikole Nikolića
         employeeManager.delete(3);
-        System.out.println("\nUklonjen Nikola Nikolić iz sistema");
+        System.out.println("\nUklonjen Nikola Nikolić iz sistema\n");
+
+        Membership membership1 = new Membership(
+                1, 1, LocalDate.now(), LocalDate.now().plusMonths(1), true, "MONTHLY"
+        );
 
         // 5. Dodavanje članova (Milica Milić i Ana Anić)
         Member member1 = new Member(
                 1, "Milica", "Milić", Gender.FEMALE,
                 LocalDate.of(1998, 7, 12), "0621112222",
                 "Studentska 5", "milica.milic@email.com", "member123",
-                MembershipCategory.STUDENT
-        );
-
-        Membership membership1 = new Membership(
-                1, 1, LocalDate.now(), LocalDate.now().plusMonths(1), true, "MONTHLY"
-        );
-
-        Member member2 = new Member(
-                2, "Ana", "Anić", Gender.FEMALE,
-                LocalDate.of(1985, 11, 3), "0633334444",
-                "Radnička 8", "ana.anic@email.com", "member456",
-                null
+                MembershipCategory.STUDENT, 1
         );
 
         Membership membership2 = new Membership(
                 2, 2, LocalDate.now(), LocalDate.now().plusYears(1), true, "YEARLY"
         );
 
+        Member member2 = new Member(
+                2, "Ana", "Anić", Gender.FEMALE,
+                LocalDate.of(1985, 11, 3), "0633334444",
+                "Radnička 8", "ana.anic@email.com", "member456",
+                null, 2
+        );
+
+        membershipManager.add(membership1);
+        membershipManager.add(membership2);
         memberManager.add(member1);
         memberManager.add(member2);
-        System.out.println("Dodati članovi: Milica Milić (STUDENT) i Ana Anić");
+        System.out.println("Dodati članovi: Milica Milić (STUDENT) i Ana Anić\n");
 
         // 6. Dodavanje žanrova
         Genre genre1 = new Genre(1, "Roman", "Književni žanr");
@@ -103,7 +110,7 @@ public class Main {
         genreManager.add(genre1);
         genreManager.add(genre2);
         genreManager.add(genre3);
-        System.out.println("Dodati žanrovi: Roman, Drama, Naučna fantastika");
+        System.out.println("Dodati žanrovi: Roman, Drama, Naučna fantastika\n");
 
         // 7. Dodavanje knjiga
         Book book1 = new Book(
@@ -118,7 +125,7 @@ public class Main {
 
         Book book3 = new Book(
                 3, "Rat i mir", "Lav Tolstoj", "9788661451072",
-                1869, 1, 1, 1 ,BookStatus.AVAILABLE
+                1869, 2, 1, 1 ,BookStatus.AVAILABLE
         );
 
         Book book4 = new Book(
@@ -130,49 +137,42 @@ public class Main {
         bookManager.add(book2);
         bookManager.add(book3);
         bookManager.add(book4);
-        System.out.println("Dodate knjige: Ana Karenjina (2 primerka), Rat i mir, 1984");
+        System.out.println("Dodate knjige: Ana Karenjina (2 primerka), Rat i mir, 1984\n");
 
         // 8. Kreiranje cenovnika
         LocalDate startDate = LocalDate.of(2025, 1, 1);
         LocalDate endDate = LocalDate.of(2025, 12, 25);
 
-        PriceListItem monthlySub = new PriceListItem(
-                1, PriceListItemType.MONTHLY_SUBSCRIPTION,
-                "Mesečna pretplata", 1000, startDate, endDate
-        );
+        // OSNOVNE PRETPLATE
+        PriceListItem monthlySub = new PriceListItem(1, PriceListItemType.MONTHLY_SUBSCRIPTION, "Mesečna pretplata", 1000, startDate, endDate);
+        PriceListItem yearlySub = new PriceListItem(2, PriceListItemType.YEARLY_SUBSCRIPTION, "Godišnja pretplata", 10000, startDate, endDate);
 
-        PriceListItem yearlySub = new PriceListItem(
-                2, PriceListItemType.YEARLY_SUBSCRIPTION,
-                "Godišnja pretplata", 10000, startDate, endDate
-        );
+        // POPUSTI (kao procenti)
+        PriceListItem studentDiscount = new PriceListItem(3, PriceListItemType.STUDENT_DISCOUNT, "Popust za studente (20%)", 0.20, startDate, endDate);
+        PriceListItem pensionerDiscount = new PriceListItem(4, PriceListItemType.RETIREE_DISCOUNT, "Popust za penzionere (30%)", 0.30, startDate, endDate);
+        PriceListItem childDiscount = new PriceListItem(5, PriceListItemType.CHILD_DISCOUNT, "Popust za decu (40%)", 0.40, startDate, endDate);
+        PriceListItem pupilDiscount = new PriceListItem(6, PriceListItemType.PUPIL_DISCOUNT, "Popust za učenike (25%)", 0.25, startDate, endDate);
 
-        PriceListItem priorityPickup = new PriceListItem(
-                3, PriceListItemType.PRIORITY_PICKUP,
-                "Prioritetno preuzimanje", 200, startDate, endDate
-        );
+        // DODATNE USLUGE
+        PriceListItem priorityPickup = new PriceListItem(7, PriceListItemType.PRIORITY_PICKUP, "Prioritetno preuzimanje", 200, startDate, endDate);
+        PriceListItem priorityReturn = new PriceListItem(8, PriceListItemType.PRIORITY_RETURN, "Prioritetno vraćanje", 150, startDate, endDate);
+        PriceListItem extendedRetention = new PriceListItem(9, PriceListItemType.EXTENDED_RETENTION, "Produženo zadržavanje", 50, startDate, endDate);
 
-        PriceListItem priorityReturn = new PriceListItem(
-                4, PriceListItemType.PRIORITY_RETURN,
-                "Prioritetno vraćanje", 150, startDate, endDate
-        );
+        // KAZNE
+        PriceListItem penalty = new PriceListItem(10, PriceListItemType.PENALTY, "Kazna za kašnjenje", 100, startDate, endDate);
 
-        PriceListItem extendedRetention = new PriceListItem(
-                5, PriceListItemType.EXTENDED_RETENTION,
-                "Produženo zadržavanje", 50, startDate, endDate
-        );
-
-        PriceListItem penalty = new PriceListItem(
-                6, PriceListItemType.PENALTY,
-                "Kazna za kašnjenje", 100, startDate, endDate
-        );
-
+        // Dodavanje u cenovnik
         priceListManager.add(monthlySub);
         priceListManager.add(yearlySub);
+        priceListManager.add(studentDiscount);
+        priceListManager.add(pensionerDiscount);
+        priceListManager.add(childDiscount);
+        priceListManager.add(pupilDiscount);
         priceListManager.add(priorityPickup);
         priceListManager.add(priorityReturn);
         priceListManager.add(extendedRetention);
         priceListManager.add(penalty);
-        System.out.println("Kreiran cenovnik za period 01.01.2025 - 25.12.2025");
+        System.out.println("Kreiran cenovnik za period 01.01.2025 - 25.12.2025\n");
 
         // 9. Izmena cene mesečne pretplate
         PriceListItem updatedMonthlySub = new PriceListItem(
@@ -195,7 +195,7 @@ public class Main {
         LocalDate pickupDate1 = LocalDate.of(2025, 11, 13);
         Reservation reservation1 = new Reservation(
                 1, 1, 1, LocalDate.now(), pickupDate1,
-                pickupDate1.plusDays(7), ReservationStatus.PENDING, 200
+                pickupDate1.plusDays(7), ReservationStatus.PENDING, priceListManager.getById(7).getPrice()
         );
 
         reservationManager.add(reservation1);
@@ -218,7 +218,7 @@ public class Main {
         );
 
         reservationManager.add(reservation2);
-        System.out.println("Kreirana rezervacija za Anu Anić za knjigu '1984' na dan 07.12.2025");
+        System.out.println("\nKreirana rezervacija za Anu Anić za knjigu '1984' na dan 07.12.2025");
 
         // 14. Prikaz svih rezervacija Milice Milić
         System.out.println("\nRezervacije Milice Milić:");
