@@ -16,6 +16,16 @@ public class MembershipManager implements IManager<Membership> {
         loadFromFile();
     }
 
+    public int getNextId() {
+        if (memberships.isEmpty()) {
+            return 1;
+        }
+        return memberships.stream()
+                .mapToInt(Membership::getId)
+                .max()
+                .orElse(0) + 1;
+    }
+
     @Override
     public void add(Membership membership) {
         memberships.add(membership);

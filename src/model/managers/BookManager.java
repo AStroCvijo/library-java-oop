@@ -20,6 +20,16 @@ public class BookManager implements IManager<Book> {
         loadFromFile();
     }
 
+    public int getNextId() {
+        if (books.isEmpty()) {
+            return 1;
+        }
+        return books.stream()
+                .mapToInt(Book::getId)
+                .max()
+                .orElse(0) + 1;
+    }
+
     @Override
     public void add(Book book) {
         Book existingBook = getBookByIsbn(book.getIsbn());

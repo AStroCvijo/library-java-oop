@@ -39,6 +39,16 @@ public class EmployeeManager implements IManager<Employee> {
         return new ArrayList<>(employees);
     }
 
+    public Employee findByUsername(String username) {
+        if (username == null || username.isEmpty()) {
+            return null;
+        }
+        return employees.stream()
+                .filter(e -> e.getUsername() != null && e.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+    }
+
     @Override
     public void update(Employee employee) {
         for (int i = 0; i < employees.size(); i++) {

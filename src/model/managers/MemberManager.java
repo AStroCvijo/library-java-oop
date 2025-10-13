@@ -1,5 +1,6 @@
 package model.managers;
 
+import model.entities.Employee;
 import model.entities.Member;
 import model.enums.Gender;
 import model.enums.MembershipCategory;
@@ -19,6 +20,16 @@ public class MemberManager implements IManager<Member> {
         loadFromFile();
     }
 
+    public int getNextId() {
+        if (members.isEmpty()) {
+            return 1;
+        }
+        return members.stream()
+                .mapToInt(Member::getId)
+                .max()
+                .orElse(0) + 1;
+    }
+
     @Override
     public void add(Member member) {
         members.add(member);
@@ -29,6 +40,16 @@ public class MemberManager implements IManager<Member> {
     public Member getById(int id) {
         return members.stream()
                 .filter(m -> m.getId() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Member findByUsername(String username) {
+        if (username == null || username.isEmpty()) {
+            return null;
+        }
+        return members.stream()
+                .filter(m -> m.getUsername() != null && m.getUsername().equals(username))
                 .findFirst()
                 .orElse(null);
     }

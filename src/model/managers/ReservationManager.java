@@ -18,6 +18,16 @@ public class ReservationManager implements IManager<Reservation> {
         loadFromFile();
     }
 
+    public int getNextId() {
+        if (reservations.isEmpty()) {
+            return 1;
+        }
+        return reservations.stream()
+                .mapToInt(Reservation::getId)
+                .max()
+                .orElse(0) + 1;
+    }
+
     @Override
     public void add(Reservation reservation) {
         reservations.add(reservation);
