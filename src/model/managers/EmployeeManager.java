@@ -1,6 +1,7 @@
 package model.managers;
 
 import model.entities.Employee;
+import model.entities.Member;
 import model.enums.EmployeeEducationLevel;
 import model.enums.Gender;
 import model.enums.EmployeeRole;
@@ -18,6 +19,16 @@ public class EmployeeManager implements IManager<Employee> {
         this.employees = new ArrayList<>();
         this.filename = filename;
         loadFromFile();
+    }
+
+    public int getNextId() {
+        if (employees.isEmpty()) {
+            return 1;
+        }
+        return employees.stream()
+                .mapToInt(Employee::getId)
+                .max()
+                .orElse(0) + 1;
     }
 
     @Override

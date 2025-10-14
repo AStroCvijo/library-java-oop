@@ -1,5 +1,6 @@
 package model.managers;
 
+import model.entities.Employee;
 import model.entities.Genre;
 
 import java.io.*;
@@ -15,6 +16,16 @@ public class GenreManager implements IManager<Genre> {
         this.filename = filename;
         loadFromFile();
     }
+    public int getNextId() {
+        if (genres.isEmpty()) {
+            return 1;
+        }
+        return genres.stream()
+                .mapToInt(Genre::getId)
+                .max()
+                .orElse(0) + 1;
+    }
+
 
     @Override
     public void add(Genre genre) {

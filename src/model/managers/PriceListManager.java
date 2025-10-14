@@ -1,5 +1,6 @@
 package model.managers;
 
+import model.entities.Employee;
 import model.entities.PriceListItem;
 import model.enums.PriceListItemType;
 
@@ -16,6 +17,16 @@ public class PriceListManager implements IManager<PriceListItem> {
         this.priceListItems = new ArrayList<>();
         this.filename = filename;
         loadFromFile();
+    }
+
+    public int getNextId() {
+        if (priceListItems.isEmpty()) {
+            return 1;
+        }
+        return priceListItems.stream()
+                .mapToInt(PriceListItem::getId)
+                .max()
+                .orElse(0) + 1;
     }
 
     @Override

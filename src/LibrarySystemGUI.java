@@ -19,7 +19,7 @@ public class LibrarySystemGUI extends JFrame {
     private User currentUser;
 
     public LibrarySystemGUI() {
-        setTitle("Bibliotečni Informacioni Sistem");
+        setTitle("Biblioteka");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 700);
         setLocationRelativeTo(null);
@@ -167,7 +167,10 @@ public class LibrarySystemGUI extends JFrame {
         centerPanel.add(createMenuButton("Upravljanje Zaposlenima", e -> showEmployeeManagement()));
         centerPanel.add(createMenuButton("Upravljanje Članovima", e -> showMemberManagement()));
         centerPanel.add(createMenuButton("Upravljanje Knjigama", e -> showBookManagement()));
+        centerPanel.add(createMenuButton("Upravljanje Žanrovima", e -> showGenreManagement()));
+        centerPanel.add(createMenuButton("Upravljanje Rezervacijama", e -> showReservationManagement()));
         centerPanel.add(createMenuButton("Upravljanje Cenovnikom", e -> showPriceListManagement()));
+        centerPanel.add(createMenuButton("Upravljanje Članarinama", e -> showMembershipManagement()));
         centerPanel.add(createMenuButton("Izveštaji i Analitika", e -> showReports()));
         centerPanel.add(createMenuButton("Podešavanja Sistema", e -> showSettings()));
     }
@@ -206,14 +209,24 @@ public class LibrarySystemGUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(new JButton("Dodaj Zaposlenog"));
-        buttonPanel.add(new JButton("Uredi Zaposlenog"));
-        buttonPanel.add(new JButton("Obriši Zaposlenog"));
-        buttonPanel.add(new JButton("Nazad"));
+        JButton addButton = new JButton("Dodaj Zaposlenog");
+        JButton editButton = new JButton("Uredi Zaposlenog");
+        JButton deleteButton = new JButton("Obriši Zaposlenog");
+        JButton backButton = new JButton("Nazad");
+
+        buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(backButton);
         panel.add(buttonPanel, BorderLayout.NORTH);
 
         String[] columns = {"ID", "Ime", "Prezime", "Pozicija", "Plata", "Stež"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         for (Employee emp : employeeManager.getAll()) {
             model.addRow(new Object[]{
@@ -226,7 +239,155 @@ public class LibrarySystemGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // Add button action
+        addButton.addActionListener(e -> showEmployeeDialog(null));
+
+        // Edit button action
+        editButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                Employee emp = employeeManager.getById(id);
+                showEmployeeDialog(emp);
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite zaposlenog za izmenu.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        // Delete button action
+        deleteButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                int option = JOptionPane.showConfirmDialog(this,
+                        "Da li ste sigurni da želite da obrišete zaposlenog?",
+                        "Potvrda brisanja", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    employeeManager.delete(id);
+                    showEmployeeManagement(); // Refresh
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite zaposlenog za brisanje.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        backButton.addActionListener(e -> showMainMenu());
+
         showPanel(panel, "Upravljanje Zaposlenima");
+    }
+
+    private void showEmployeeDialog(Employee employee) {
+        JDialog dialog = new JDialog(this, employee == null ? "Dodaj Zaposlenog" : "Uredi Zaposlenog", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(400, 500);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextField firstNameField = new JTextField(employee != null ? employee.getFirstName() : "", 20);
+        JTextField lastNameField = new JTextField(employee != null ? employee.getLastName() : "", 20);
+        JComboBox<Gender> genderCombo = new JComboBox<>(Gender.values());
+        JTextField birthDateField = new JTextField(employee != null ? employee.getBirthDate().toString() : "YYYY-MM-DD", 20);
+        JTextField phoneField = new JTextField(employee != null ? employee.getPhone() : "", 20);
+        JTextField addressField = new JTextField(employee != null ? employee.getAddress() : "", 20);
+        JTextField usernameField = new JTextField(employee != null ? employee.getUsername() : "", 20);
+        JPasswordField passwordField = new JPasswordField(employee != null ? employee.getPassword() : "", 20);
+        JComboBox<EmployeeEducationLevel> educationCombo = new JComboBox<>(EmployeeEducationLevel.values());
+        JSpinner yearsOfExperienceSpinner = new JSpinner(new SpinnerNumberModel(employee != null ? employee.getYearsOfExperience() : 0, 0, 50, 1));
+        JTextField salaryField = new JTextField(employee != null ? String.valueOf(employee.getBaseSalary()) : "", 20);
+        JComboBox<EmployeeRole> roleCombo = new JComboBox<>(EmployeeRole.values());
+
+        if (employee != null) {
+            genderCombo.setSelectedItem(employee.getGender());
+            educationCombo.setSelectedItem(employee.getEducationLevel());
+            roleCombo.setSelectedItem(employee.getRole());
+        }
+
+        panel.add(new JLabel("Ime:"));
+        panel.add(firstNameField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Prezime:"));
+        panel.add(lastNameField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Pol:"));
+        panel.add(genderCombo);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Datum rođenja (YYYY-MM-DD):"));
+        panel.add(birthDateField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Telefon:"));
+        panel.add(phoneField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Adresa:"));
+        panel.add(addressField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Korisničko ime:"));
+        panel.add(usernameField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Lozinka:"));
+        panel.add(passwordField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Obrazovanje:"));
+        panel.add(educationCombo);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Godine iskustva:"));
+        panel.add(yearsOfExperienceSpinner);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Osnovna plata:"));
+        panel.add(salaryField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Pozicija:"));
+        panel.add(roleCombo);
+
+        JButton saveButton = new JButton("Sačuvaj");
+        saveButton.addActionListener(e -> {
+            try {
+                String firstName = firstNameField.getText();
+                String lastName = lastNameField.getText();
+                Gender gender = (Gender) genderCombo.getSelectedItem();
+                LocalDate birthDate = LocalDate.parse(birthDateField.getText());
+                String phone = phoneField.getText();
+                String address = addressField.getText();
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword());
+                EmployeeEducationLevel education = (EmployeeEducationLevel) educationCombo.getSelectedItem();
+                int yearsOfExperience = (int) yearsOfExperienceSpinner.getValue();
+                double baseSalary = Double.parseDouble(salaryField.getText());
+                EmployeeRole role = (EmployeeRole) roleCombo.getSelectedItem();
+
+                Employee newEmployee;
+                if (employee == null) {
+                    newEmployee = new Employee(
+                            employeeManager.getNextId(), firstName, lastName, gender, birthDate, phone, address,
+                            username, password, education, yearsOfExperience, baseSalary, role
+                    );
+                    employeeManager.add(newEmployee);
+                    JOptionPane.showMessageDialog(dialog, "Zaposleni je uspešno dodat!");
+                } else {
+                    newEmployee = new Employee(
+                            employee.getId(), firstName, lastName, gender, birthDate, phone, address,
+                            username, password, education, yearsOfExperience, baseSalary, role
+                    );
+                    employeeManager.update(newEmployee);
+                    JOptionPane.showMessageDialog(dialog, "Zaposleni je uspešno ažuriran!");
+                }
+
+                dialog.dispose();
+                showEmployeeManagement(); // Refresh prikaza
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Greška pri unosu podataka: " + ex.getMessage(),
+                        "Greška", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(saveButton);
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setVisible(true);
     }
 
     private void showBookManagement() {
@@ -234,20 +395,31 @@ public class LibrarySystemGUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(new JButton("Dodaj Knjigu"));
-        buttonPanel.add(new JButton("Uredi Knjigu"));
-        buttonPanel.add(new JButton("Obriši Knjigu"));
-        buttonPanel.add(new JButton("Nazad"));
+        JButton addButton = new JButton("Dodaj Knjigu");
+        JButton editButton = new JButton("Uredi Knjigu");
+        JButton deleteButton = new JButton("Obriši Knjigu");
+        JButton backButton = new JButton("Nazad");
+
+        buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(backButton);
         panel.add(buttonPanel, BorderLayout.NORTH);
 
-        String[] columns = {"ID", "Naslov", "Autor", "Žanr", "Status", "Godište"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        String[] columns = {"ID", "Naslov", "Autor", "Žanr", "Status", "Godište", "Dostupno"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         for (Book book : bookManager.getAll()) {
             Genre genre = genreManager.getById(book.getGenreId());
             model.addRow(new Object[]{
                     book.getId(), book.getTitle(), book.getAuthor(),
-                    genre != null ? genre.getName() : "N/A", book.getStatus(), book.getPublicationYear()
+                    genre != null ? genre.getName() : "N/A", book.getStatus(),
+                    book.getPublicationYear(), book.getAvailableCopies()
             });
         }
 
@@ -255,7 +427,151 @@ public class LibrarySystemGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        addButton.addActionListener(e -> showBookDialog(null));
+
+        editButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                Book book = bookManager.getById(id);
+                showBookDialog(book);
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite knjigu za izmenu.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                int option = JOptionPane.showConfirmDialog(this,
+                        "Da li ste sigurni da želite da obrišete knjigu?",
+                        "Potvrda brisanja", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    bookManager.delete(id);
+                    showBookManagement();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite knjigu za brisanje.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        backButton.addActionListener(e -> showMainMenu());
+
         showPanel(panel, "Upravljanje Knjigama");
+    }
+
+    private void showBookDialog(Book book) {
+        JDialog dialog = new JDialog(this, book == null ? "Dodaj Knjigu" : "Uredi Knjigu", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(400, 400);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextField titleField = new JTextField(book != null ? book.getTitle() : "", 20);
+        JTextField authorField = new JTextField(book != null ? book.getAuthor() : "", 20);
+        JTextField isbnField = new JTextField(book != null ? book.getIsbn() : "", 20);
+        JTextField yearField = new JTextField(book != null ? String.valueOf(book.getPublicationYear()) : "", 20);
+        JSpinner copiesSpinner = new JSpinner(new SpinnerNumberModel(book != null ? book.getAvailableCopies() : 1, 1, 100, 1));
+
+        // Genre combobox
+        JComboBox<Genre> genreCombo = new JComboBox<>();
+        for (Genre genre : genreManager.getAll()) {
+            genreCombo.addItem(genre);
+        }
+
+        JComboBox<BookStatus> statusCombo = new JComboBox<>(BookStatus.values());
+
+        if (book != null) {
+            genreCombo.setSelectedItem(genreManager.getById(book.getGenreId()));
+            statusCombo.setSelectedItem(book.getStatus());
+        }
+
+        panel.add(new JLabel("Naslov:"));
+        panel.add(titleField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Autor:"));
+        panel.add(authorField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("ISBN:"));
+        panel.add(isbnField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Godina izdanja:"));
+        panel.add(yearField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Žanr:"));
+        panel.add(genreCombo);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Status:"));
+        panel.add(statusCombo);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Broj primeraka:"));
+        panel.add(copiesSpinner);
+
+        JButton saveButton = new JButton("Sačuvaj");
+        saveButton.addActionListener(e -> {
+            try {
+                String title = titleField.getText();
+                String author = authorField.getText();
+                String isbn = isbnField.getText();
+                int publicationYear = Integer.parseInt(yearField.getText());
+                Genre selectedGenre = (Genre) genreCombo.getSelectedItem();
+                BookStatus status = (BookStatus) statusCombo.getSelectedItem();
+                int copies = (int) copiesSpinner.getValue();
+
+
+                // potencijalno izmjeniti
+                Book newBook;
+                if (book == null) {
+                    newBook = new Book(
+                            bookManager.getNextId(), title, author, isbn, publicationYear,
+                            selectedGenre != null ? selectedGenre.getId() : 0, copies, copies, status
+                    );
+                    bookManager.add(newBook);
+                    JOptionPane.showMessageDialog(dialog, "Knjiga je uspešno dodata!");
+                } else {
+
+                    if (copies == book.getAvailableCopies()) {
+                        newBook = new Book(
+                                book.getId(), title, author, isbn, publicationYear,
+                                selectedGenre != null ? selectedGenre.getId() : 0, copies, book.getAvailableCopies(), status
+                        );
+                        bookManager.update(newBook);
+                        JOptionPane.showMessageDialog(dialog, "Knjiga je uspešno ažurirana!");
+                    } else if (copies > book.getAvailableCopies()) {
+                        newBook = new Book(
+                                book.getId(), title, author, isbn, publicationYear,
+                                selectedGenre != null ? selectedGenre.getId() : 0, copies, book.getAvailableCopies()+1, status
+                        );
+                        bookManager.update(newBook);
+                        JOptionPane.showMessageDialog(dialog, "Knjiga je uspešno ažurirana!");
+                    } else if (copies < book.getAvailableCopies()) {
+                        newBook = new Book(
+                                book.getId(), title, author, isbn, publicationYear,
+                                selectedGenre != null ? selectedGenre.getId() : 0, copies, book.getAvailableCopies()-1, status
+                        );
+                        bookManager.update(newBook);
+                        JOptionPane.showMessageDialog(dialog, "Knjiga je uspešno ažurirana!");
+                    }
+                }
+
+                dialog.dispose();
+                showBookManagement();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Greška pri unosu podataka: " + ex.getMessage(),
+                        "Greška", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(saveButton);
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setVisible(true);
     }
 
     private void showPriceListManagement() {
@@ -263,14 +579,24 @@ public class LibrarySystemGUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(new JButton("Dodaj Stavku"));
-        buttonPanel.add(new JButton("Uredi Stavku"));
-        buttonPanel.add(new JButton("Obriši Stavku"));
-        buttonPanel.add(new JButton("Nazad"));
+        JButton addButton = new JButton("Dodaj Stavku");
+        JButton editButton = new JButton("Uredi Stavku");
+        JButton deleteButton = new JButton("Obriši Stavku");
+        JButton backButton = new JButton("Nazad");
+
+        buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(backButton);
         panel.add(buttonPanel, BorderLayout.NORTH);
 
         String[] columns = {"ID", "Tip", "Opis", "Cena", "Od", "Do"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         for (PriceListItem item : priceListManager.getAll()) {
             model.addRow(new Object[]{
@@ -283,8 +609,235 @@ public class LibrarySystemGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        addButton.addActionListener(e -> showPriceListItemDialog(null));
+
+        editButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                PriceListItem item = priceListManager.getById(id);
+                showPriceListItemDialog(item);
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite stavku za izmenu.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                int option = JOptionPane.showConfirmDialog(this,
+                        "Da li ste sigurni da želite da obrišete stavku?",
+                        "Potvrda brisanja", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    priceListManager.delete(id);
+                    showPriceListManagement();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite stavku za brisanje.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        backButton.addActionListener(e -> showMainMenu());
+
         showPanel(panel, "Upravljanje Cenovnikom");
     }
+
+    private void showPriceListItemDialog(PriceListItem item) {
+        JDialog dialog = new JDialog(this, item == null ? "Dodaj Stavku" : "Uredi Stavku", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(400, 350);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JComboBox<PriceListItemType> typeCombo = new JComboBox<>(PriceListItemType.values());
+        JTextField descriptionField = new JTextField(item != null ? item.getDescription() : "", 20);
+        JTextField priceField = new JTextField(item != null ? String.valueOf(item.getPrice()) : "", 20);
+        JTextField validFromField = new JTextField(item != null ? item.getValidFrom().toString() : "YYYY-MM-DD", 20);
+        JTextField validToField = new JTextField(item != null ? item.getValidTo().toString() : "YYYY-MM-DD", 20);
+
+        if (item != null) {
+            typeCombo.setSelectedItem(item.getType());
+        }
+
+        panel.add(new JLabel("Tip stavke:"));
+        panel.add(typeCombo);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Opis:"));
+        panel.add(descriptionField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Cena:"));
+        panel.add(priceField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Važi od (YYYY-MM-DD):"));
+        panel.add(validFromField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Važi do (YYYY-MM-DD):"));
+        panel.add(validToField);
+
+        JButton saveButton = new JButton("Sačuvaj");
+        saveButton.addActionListener(e -> {
+            try {
+                PriceListItemType type = (PriceListItemType) typeCombo.getSelectedItem();
+                String description = descriptionField.getText();
+                double price = Double.parseDouble(priceField.getText());
+                LocalDate validFrom = LocalDate.parse(validFromField.getText());
+                LocalDate validTo = LocalDate.parse(validToField.getText());
+
+                PriceListItem newItem;
+                if (item == null) {
+                    newItem = new PriceListItem(
+                            priceListManager.getNextId(), type, description, price, validFrom, validTo
+                    );
+                    priceListManager.add(newItem);
+                    JOptionPane.showMessageDialog(dialog, "Stavka je uspešno dodata!");
+                } else {
+                    newItem = new PriceListItem(
+                            item.getId(), type, description, price, validFrom, validTo
+                    );
+                    priceListManager.update(newItem);
+                    JOptionPane.showMessageDialog(dialog, "Stavka je uspešno ažurirana!");
+                }
+
+                dialog.dispose();
+                showPriceListManagement();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Greška pri unosu podataka: " + ex.getMessage(),
+                        "Greška", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(saveButton);
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void showGenreManagement() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel buttonPanel = new JPanel();
+        JButton addButton = new JButton("Dodaj Žanr");
+        JButton editButton = new JButton("Uredi Žanr");
+        JButton deleteButton = new JButton("Obriši Žanr");
+        JButton backButton = new JButton("Nazad");
+
+        buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(backButton);
+        panel.add(buttonPanel, BorderLayout.NORTH);
+
+        String[] columns = {"ID", "Naziv", "Opis"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        for (Genre genre : genreManager.getAll()) {
+            model.addRow(new Object[]{
+                    genre.getId(), genre.getName(), genre.getDescription()
+            });
+        }
+
+        JTable table = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        addButton.addActionListener(e -> showGenreDialog(null));
+
+        editButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                Genre genre = genreManager.getById(id);
+                showGenreDialog(genre);
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite žanr za izmenu.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                int option = JOptionPane.showConfirmDialog(this,
+                        "Da li ste sigurni da želite da obrišete žanr?",
+                        "Potvrda brisanja", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    genreManager.delete(id);
+                    showGenreManagement();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite žanr za brisanje.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        backButton.addActionListener(e -> showMainMenu());
+
+        showPanel(panel, "Upravljanje Žanrovima");
+    }
+
+    private void showGenreDialog(Genre genre) {
+        JDialog dialog = new JDialog(this, genre == null ? "Dodaj Žanr" : "Uredi Žanr", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(400, 200);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextField nameField = new JTextField(genre != null ? genre.getName() : "", 20);
+        JTextField descriptionField = new JTextField(genre != null ? genre.getDescription() : "", 20);
+
+        panel.add(new JLabel("Naziv:"));
+        panel.add(nameField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Opis:"));
+        panel.add(descriptionField);
+
+        JButton saveButton = new JButton("Sačuvaj");
+        saveButton.addActionListener(e -> {
+            try {
+                String name = nameField.getText();
+                String description = descriptionField.getText();
+
+                Genre newGenre;
+                if (genre == null) {
+                    newGenre = new Genre(genreManager.getNextId(), name, description);
+                    genreManager.add(newGenre);
+                    JOptionPane.showMessageDialog(dialog, "Žanr je uspešno dodat!");
+                } else {
+                    newGenre = new Genre(genre.getId(), name, description);
+                    genreManager.update(newGenre);
+                    JOptionPane.showMessageDialog(dialog, "Žanr je uspešno ažuriran!");
+                }
+
+                dialog.dispose();
+                showGenreManagement();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Greška pri unosu podataka: " + ex.getMessage(),
+                        "Greška", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(saveButton);
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
 
     private void showReports() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
@@ -320,19 +873,29 @@ public class LibrarySystemGUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(new JButton("Dodaj člana"));
-        buttonPanel.add(new JButton("Uredi člana"));
-        buttonPanel.add(new JButton("Obriši člana"));
-        buttonPanel.add(new JButton("Nazad"));
+        JButton addButton = new JButton("Dodaj člana");
+        JButton editButton = new JButton("Uredi člana");
+        JButton deleteButton = new JButton("Obriši člana");
+        JButton backButton = new JButton("Nazad");
+
+        buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(backButton);
         panel.add(buttonPanel, BorderLayout.NORTH);
 
-        String[] columns = {"ID", "Ime", "Prezime", "Email", "Kategorija", "Članarina"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        String[] columns = {"ID", "Ime", "Prezime", "Email", "Kategorija", "Telefon"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         for (Member mem : memberManager.getAll()) {
             model.addRow(new Object[]{
                     mem.getId(), mem.getFirstName(), mem.getLastName(),
-                    mem.getUsername(), mem.getCategory(), "Aktivna"
+                    mem.getUsername(), mem.getCategory(), mem.getPhone()
             });
         }
 
@@ -340,7 +903,137 @@ public class LibrarySystemGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        addButton.addActionListener(e -> showMemberDialog(null));
+
+        editButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                Member mem = memberManager.getById(id);
+                showMemberDialog(mem);
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite člana za izmenu.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                int option = JOptionPane.showConfirmDialog(this,
+                        "Da li ste sigurni da želite da obrišete člana?",
+                        "Potvrda brisanja", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    memberManager.delete(id);
+                    showMemberManagement();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite člana za brisanje.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        backButton.addActionListener(e -> showMainMenu());
+
         showPanel(panel, "Upravljanje Članovima");
+    }
+
+    private void showMemberDialog(Member member) {
+        JDialog dialog = new JDialog(this, member == null ? "Dodaj Člana" : "Uredi Člana", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(400, 400);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextField firstNameField = new JTextField(member != null ? member.getFirstName() : "", 20);
+        JTextField lastNameField = new JTextField(member != null ? member.getLastName() : "", 20);
+        JComboBox<Gender> genderCombo = new JComboBox<>(Gender.values());
+        JTextField birthDateField = new JTextField(member != null ? member.getBirthDate().toString() : "YYYY-MM-DD", 20);
+        JTextField phoneField = new JTextField(member != null ? member.getPhone() : "", 20);
+        JTextField addressField = new JTextField(member != null ? member.getAddress() : "", 20);
+        JTextField emailField = new JTextField(member != null ? member.getUsername() : "", 20);
+        JPasswordField passwordField = new JPasswordField(member != null ? member.getPassword() : "", 20);
+        JComboBox<MembershipCategory> categoryCombo = new JComboBox<>(MembershipCategory.values());
+
+        if (member != null) {
+            genderCombo.setSelectedItem(member.getGender());
+            categoryCombo.setSelectedItem(member.getCategory());
+        }
+
+        panel.add(new JLabel("Ime:"));
+        panel.add(firstNameField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Prezime:"));
+        panel.add(lastNameField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Pol:"));
+        panel.add(genderCombo);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Datum rođenja (YYYY-MM-DD):"));
+        panel.add(birthDateField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Telefon:"));
+        panel.add(phoneField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Adresa:"));
+        panel.add(addressField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Email:"));
+        panel.add(emailField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Lozinka:"));
+        panel.add(passwordField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Kategorija:"));
+        panel.add(categoryCombo);
+
+        JButton saveButton = new JButton("Sačuvaj");
+        saveButton.addActionListener(e -> {
+            try {
+                String firstName = firstNameField.getText();
+                String lastName = lastNameField.getText();
+                Gender gender = (Gender) genderCombo.getSelectedItem();
+                LocalDate birthDate = LocalDate.parse(birthDateField.getText());
+                String phone = phoneField.getText();
+                String address = addressField.getText();
+                String email = emailField.getText();
+                String password = new String(passwordField.getPassword());
+                MembershipCategory category = (MembershipCategory) categoryCombo.getSelectedItem();
+
+
+                Member newMember;
+                if (member == null) {
+                    newMember = new Member(
+                            memberManager.getNextId(), firstName, lastName, gender, birthDate, phone, address,
+                            email, password, category, membershipManager.getNextId()
+                    );
+                    memberManager.add(newMember);
+                    JOptionPane.showMessageDialog(dialog, "Član je uspešno dodat!");
+                } else {
+                    newMember = new Member(
+                            member.getId(), firstName, lastName, gender, birthDate, phone, address,
+                            email, password, category, member.getMembershipId()
+                    );
+                    memberManager.update(newMember);
+                    JOptionPane.showMessageDialog(dialog, "Član je uspešno ažuriran!");
+                }
+
+                dialog.dispose();
+                showMemberManagement();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Greška pri unosu podataka: " + ex.getMessage(),
+                        "Greška", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(saveButton);
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setVisible(true);
     }
 
     // ==================== LIBRARIAN METHODS ====================
@@ -396,21 +1089,37 @@ public class LibrarySystemGUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(new JButton("Potvrdi Rezervaciju"));
-        buttonPanel.add(new JButton("Odbij Rezervaciju"));
-        buttonPanel.add(new JButton("Otkazi Rezervaciju"));
-        buttonPanel.add(new JButton("Nazad"));
+        JButton confirmButton = new JButton("Potvrdi Rezervaciju");
+        JButton rejectButton = new JButton("Odbij Rezervaciju");
+        JButton cancelButton = new JButton("Otkaži Rezervaciju");
+        JButton deleteButton = new JButton("Obriši Rezervaciju");
+        JButton backButton = new JButton("Nazad");
+
+        buttonPanel.add(confirmButton);
+        buttonPanel.add(rejectButton);
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(backButton);
         panel.add(buttonPanel, BorderLayout.NORTH);
 
-        String[] columns = {"ID", "Član", "Knjiga", "Datum Preuzimanja", "Status"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        String[] columns = {"ID", "Član", "Knjiga", "Datum Rezervacije", "Datum Preuzimanja", "Status"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         for (Reservation res : reservationManager.getAll()) {
             Member mem = memberManager.getById(res.getMemberId());
             Book book = bookManager.getById(res.getBookId());
             model.addRow(new Object[]{
-                    res.getId(), mem.getFirstName() + " " + mem.getLastName(),
-                    book.getTitle(), res.getPickupDate(), res.getStatus()
+                    res.getId(),
+                    mem != null ? mem.getFirstName() + " " + mem.getLastName() : "N/A",
+                    book != null ? book.getTitle() : "N/A",
+                    res.getReservationDate(),
+                    res.getPickupDate(),
+                    res.getStatus()
             });
         }
 
@@ -418,7 +1127,46 @@ public class LibrarySystemGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        confirmButton.addActionListener(e -> updateReservationStatus(table, ReservationStatus.CONFIRMED));
+        rejectButton.addActionListener(e -> updateReservationStatus(table, ReservationStatus.REJECTED));
+        cancelButton.addActionListener(e -> updateReservationStatus(table, ReservationStatus.CANCELED));
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                int option = JOptionPane.showConfirmDialog(this,
+                        "Da li ste sigurni da želite da obrišete rezervaciju?",
+                        "Potvrda brisanja", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    reservationManager.delete(id);
+                    showReservationManagement();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite rezervaciju za brisanje.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        backButton.addActionListener(e -> showMainMenu());
+
         showPanel(panel, "Upravljanje Rezervacijama");
+    }
+
+    private void updateReservationStatus(JTable table, ReservationStatus status) {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            int id = (int) table.getValueAt(selectedRow, 0);
+            Reservation res = reservationManager.getById(id);
+            if (res != null) {
+                res.setStatus(status);
+                reservationManager.update(res);
+                showReservationManagement();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Izaberite rezervaciju za izmenu statusa.",
+                    "Upozorenje", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
     private void showMemberRegistration() {
@@ -504,13 +1252,31 @@ public class LibrarySystemGUI extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        JPanel buttonPanel = new JPanel();
+        JButton addButton = new JButton("Dodaj Članarinu");
+        JButton editButton = new JButton("Uredi Članarinu");
+        JButton deleteButton = new JButton("Obriši Članarinu");
+        JButton backButton = new JButton("Nazad");
+
+        buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(backButton);
+        panel.add(buttonPanel, BorderLayout.NORTH);
+
         String[] columns = {"ID", "Član", "Od", "Do", "Aktuelna", "Tip"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         for (Membership mem : membershipManager.getAll()) {
             Member member = memberManager.getById(mem.getMemberId());
             model.addRow(new Object[]{
-                    mem.getId(), member.getFirstName() + " " + member.getLastName(),
+                    mem.getId(),
+                    member != null ? member.getFirstName() + " " + member.getLastName() : "N/A",
                     mem.getStartDate(), mem.getEndDate(), mem.isActive(), mem.getType()
             });
         }
@@ -519,7 +1285,120 @@ public class LibrarySystemGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        showPanel(panel, "Pregled Članarina");
+        addButton.addActionListener(e -> showMembershipDialog(null));
+
+        editButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                Membership membership = membershipManager.getById(id);
+                showMembershipDialog(membership);
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite članarinu za izmenu.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                int id = (int) table.getValueAt(selectedRow, 0);
+                int option = JOptionPane.showConfirmDialog(this,
+                        "Da li ste sigurni da želite da obrišete članarinu?",
+                        "Potvrda brisanja", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    membershipManager.delete(id);
+                    showMembershipManagement();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Izaberite članarinu za brisanje.",
+                        "Upozorenje", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        backButton.addActionListener(e -> showMainMenu());
+
+        showPanel(panel, "Upravljanje Članarinama");
+    }
+
+    private void showMembershipDialog(Membership membership) {
+        JDialog dialog = new JDialog(this, membership == null ? "Dodaj Članarinu" : "Uredi Članarinu", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Member combobox
+        JComboBox<Member> memberCombo = new JComboBox<>();
+        for (Member member : memberManager.getAll()) {
+            memberCombo.addItem(member);
+        }
+
+        JTextField startDateField = new JTextField(membership != null ? membership.getStartDate().toString() : "YYYY-MM-DD", 20);
+        JTextField endDateField = new JTextField(membership != null ? membership.getEndDate().toString() : "YYYY-MM-DD", 20);
+        JComboBox<String> typeCombo = new JComboBox<>(new String[]{"MONTHLY", "YEARLY"});
+        JCheckBox activeCheckbox = new JCheckBox("Aktivna", membership == null || membership.isActive());
+
+        if (membership != null) {
+            memberCombo.setSelectedItem(memberManager.getById(membership.getMemberId()));
+            typeCombo.setSelectedItem(membership.getType());
+        }
+
+        panel.add(new JLabel("Član:"));
+        panel.add(memberCombo);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Početak (YYYY-MM-DD):"));
+        panel.add(startDateField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Kraj (YYYY-MM-DD):"));
+        panel.add(endDateField);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(new JLabel("Tip:"));
+        panel.add(typeCombo);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(activeCheckbox);
+
+        JButton saveButton = new JButton("Sačuvaj");
+        saveButton.addActionListener(e -> {
+            try {
+                Member selectedMember = (Member) memberCombo.getSelectedItem();
+                LocalDate startDate = LocalDate.parse(startDateField.getText());
+                LocalDate endDate = LocalDate.parse(endDateField.getText());
+                String type = (String) typeCombo.getSelectedItem();
+                boolean active = activeCheckbox.isSelected();
+
+                Membership newMembership;
+                if (membership == null) {
+                    assert selectedMember != null;
+                    newMembership = new Membership(
+                            membershipManager.getNextId(), selectedMember.getId(), startDate, endDate, active, type
+                    );
+                    membershipManager.add(newMembership);
+                    JOptionPane.showMessageDialog(dialog, "Članarina je uspešno dodata!");
+                } else {
+                    assert selectedMember != null;
+                    newMembership = new Membership(
+                            membership.getId(), selectedMember.getId(), startDate, endDate, active, type
+                    );
+                    membershipManager.update(newMembership);
+                    JOptionPane.showMessageDialog(dialog, "Članarina je uspešno ažurirana!");
+                }
+
+                dialog.dispose();
+                showMembershipManagement();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Greška pri unosu podataka: " + ex.getMessage(),
+                        "Greška", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(saveButton);
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.setVisible(true);
     }
 
     private void showDailyReport() {
@@ -679,6 +1558,7 @@ public class LibrarySystemGUI extends JFrame {
         renewButton.addActionListener(e -> {
             String type = (String) typeCombo.getSelectedItem();
             LocalDate startDate = LocalDate.now();
+            assert type != null;
             LocalDate endDate = type.equals("MONTHLY") ? startDate.plusMonths(1) : startDate.plusYears(1);
 
             Membership membership = new Membership(
