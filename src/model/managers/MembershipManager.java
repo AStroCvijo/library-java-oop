@@ -1,6 +1,8 @@
 package model.managers;
 
 import model.entities.Membership;
+import model.enums.MembershipStatus;
+
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -81,10 +83,18 @@ public class MembershipManager implements IManager<Membership> {
                     int memberId = Integer.parseInt(data[1]);
                     LocalDate startDate = LocalDate.parse(data[2]);
                     LocalDate endDate = LocalDate.parse(data[3]);
-                    boolean isActive = Boolean.parseBoolean(data[4]);
+                    String statusString = data[4];
+                    MembershipStatus status;
+                    if (statusString.equalsIgnoreCase("true")) {
+                        status = MembershipStatus.ACTIVE;
+                    } else if (statusString.equalsIgnoreCase("false")) {
+                        status = MembershipStatus.INACTIVE;
+                    } else {
+                        status = MembershipStatus.valueOf(statusString);
+                    }
                     String type = data[5];
 
-                    Membership membership = new Membership(id, memberId, startDate, endDate, isActive, type);
+                    Membership membership = new Membership(id, memberId, startDate, endDate, status, type);
                     memberships.add(membership);
                 }
             }
@@ -96,14 +106,14 @@ public class MembershipManager implements IManager<Membership> {
     @Override
     public void saveToFile() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
-            writer.println("id,memberId,startDate,endDate,isActive,type");
+            writer.println("id,memberId,startDate,endDate,status,type");
 
             for (Membership membership : memberships) {
                 writer.println(membership.getId() + "," +
                         membership.getMemberId() + "," +
                         membership.getStartDate() + "," +
                         membership.getEndDate() + "," +
-                        membership.isActive() + "," +
+                        membership.getStatus() + "," +
                         membership.getType());
             }
         } catch (IOException e) {
@@ -131,7 +141,7 @@ public class MembershipManager implements IManager<Membership> {
     public void deactivateMembership(int memberId) {
         Membership membership = getByMemberId(memberId);
         if (membership != null) {
-            membership.setActive(false);
+            membership.setStatus(MembershipStatus.INACTIVE);
             update(membership);
         }
     }

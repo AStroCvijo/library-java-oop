@@ -128,4 +128,18 @@ public class ReservationManager implements IManager<Reservation> {
         }
         return memberReservations;
     }
+
+    public void updateExpiredReservations() {
+        LocalDate today = LocalDate.now();
+        for (Reservation res : reservations) {
+            if (res.getStatus() == ReservationStatus.PENDING && res.getPickupDate().isBefore(today)) {
+                res.setStatus(ReservationStatus.REJECTED);
+                update(res);
+            } else if (res.getStatus() == ReservationStatus.CONFIRMED && res.getPickupDate().isBefore(today)) {
+                res.setStatus(ReservationStatus.CANCELED);
+                // Here you might want to trigger the 24h ban
+                update(res);
+            }
+        }
+    }
 }

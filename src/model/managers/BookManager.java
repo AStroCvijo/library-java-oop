@@ -136,8 +136,13 @@ public class BookManager implements IManager<Book> {
         }
     }
 
-    public List<Book> getAvailableBooks(LocalDate startPeriod, LocalDate endPeriod, ReservationManager reservationManager) {
+    public List<Book> getAvailableBooks(LocalDate startPeriod, LocalDate endPeriod) {
+        if (startPeriod == null || endPeriod == null) {
+            return new ArrayList<>(books);
+        }
+
         List<Book> availableBooks = new ArrayList<>();
+        ReservationManager reservationManager = new ReservationManager("data/reservations.csv");
 
         for (Book book : books) {
             if (book.isAvailable()) {

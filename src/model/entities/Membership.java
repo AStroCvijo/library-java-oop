@@ -1,5 +1,7 @@
 package model.entities;
 
+import model.enums.MembershipStatus;
+
 import java.time.LocalDate;
 
 public class Membership {
@@ -7,15 +9,15 @@ public class Membership {
     private int memberId;
     private LocalDate startDate;
     private LocalDate endDate;
-    private boolean isActive;
+    private MembershipStatus status;
     private String type;
 
-    public Membership(int id, int memberId, LocalDate startDate, LocalDate endDate, boolean isActive, String type) {
+    public Membership(int id, int memberId, LocalDate startDate, LocalDate endDate, MembershipStatus status, String type) {
         this.id = id;
         this.memberId = memberId;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.isActive = isActive;
+        this.status = status;
         this.type = type;
     }
 
@@ -32,9 +34,11 @@ public class Membership {
     public LocalDate getEndDate() { return endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
+    public MembershipStatus getStatus() { return status; }
+    public void setStatus(MembershipStatus status) { this.status = status; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+
+    public boolean isActive() { return status == MembershipStatus.ACTIVE; }
 }

@@ -90,7 +90,7 @@ public class MemberManager implements IManager<Member> {
                 }
 
                 String[] data = line.split(",");
-                if (data.length >= 11) {
+                if (data.length >= 13) {
                     int id = Integer.parseInt(data[0]);
                     String firstName = data[1];
                     String lastName = data[2];
@@ -102,10 +102,13 @@ public class MemberManager implements IManager<Member> {
                     String password = data[8];
                     MembershipCategory category = data[9].equals("null") ? null : MembershipCategory.valueOf(data[9]);
                     int membershipId = Integer.parseInt(data[10]);
+                    int lateReturns = Integer.parseInt(data[11]);
+                    LocalDate lastCancellationDate = data[12].equals("null") ? null : LocalDate.parse(data[12]);
 
                     Member member = new Member(id, firstName, lastName, gender,
                             birthDate, phone, address, username,
-                            password, category, membershipId);
+                            password, category, membershipId, lateReturns);
+                    member.setLastCancellationDate(lastCancellationDate);
                     members.add(member);
                 }
             }
@@ -117,7 +120,7 @@ public class MemberManager implements IManager<Member> {
     @Override
     public void saveToFile() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
-            writer.println("id,firstName,lastName,gender,birthDate,phone,address,username,password,category,membershipId");
+            writer.println("id,firstName,lastName,gender,birthDate,phone,address,username,password,category,membershipId,lateReturns,lastCancellationDate");
 
             for (Member member : members) {
                 writer.println(member.getId() + "," +
@@ -130,7 +133,9 @@ public class MemberManager implements IManager<Member> {
                         member.getUsername() + "," +
                         member.getPassword() + "," +
                         (member.getCategory() != null ? member.getCategory().name() : "null") + "," +
-                        member.getMembershipId());
+                        member.getMembershipId() + "," +
+                        member.getLateReturns() + "," +
+                        (member.getLastCancellationDate() != null ? member.getLastCancellationDate().toString() : "null"));
             }
         } catch (IOException e) {
             System.out.println("Error saving members: " + e.getMessage());

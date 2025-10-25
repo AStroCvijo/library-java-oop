@@ -43,6 +43,13 @@ public class PriceListManager implements IManager<PriceListItem> {
                 .orElse(null);
     }
 
+    public PriceListItem getItemByType(PriceListItemType type) {
+        return priceListItems.stream()
+                .filter(p -> p.getType() == type)
+                .findFirst()
+                .orElse(null);
+    }
+
     @Override
     public List<PriceListItem> getAll() {
         return new ArrayList<>(priceListItems);
