@@ -190,7 +190,9 @@ public class LibrarianGUI extends JFrame {
 
         List<JCheckBox> serviceCheckBoxes = new ArrayList<>();
         for (model.entities.PriceListItem item : priceListManager.getAll()) {
-            if (item.getType() == model.enums.PriceListItemType.PRIORITY_RETURN) {
+            if (item.getType() == model.enums.PriceListItemType.PRIORITY_PICKUP ||
+                item.getType() == model.enums.PriceListItemType.PRIORITY_RETURN ||
+                item.getType() == model.enums.PriceListItemType.EXTENDED_RETENTION) {
                 JCheckBox checkBox = new JCheckBox(item.getDescription() + " (" + item.getPrice() + ")");
                 checkBox.putClientProperty("item", item);
                 serviceCheckBoxes.add(checkBox);
@@ -206,6 +208,11 @@ public class LibrarianGUI extends JFrame {
                 int reservationId = Integer.parseInt(reservationIdField.getText());
                 Reservation res = reservationManager.getById(reservationId);
                 if (res != null && res.getStatus() == ReservationStatus.CONFIRMED) {
+                    if (!res.getPickupDate().equals(LocalDate.now())) {
+                        JOptionPane.showMessageDialog(dialog, "This book can only be issued on the pickup date: " + res.getPickupDate(), "Error", JOptionPane.ERROR_MESSAGE);
+                        issueButton.setEnabled(false);
+                        return;
+                    }
                     Member mem = memberManager.getById(res.getMemberId());
                     Book book = bookManager.getById(res.getBookId());
                     reservationLabel.setText("Reservation: " + res.getId() + " (" + res.getStatus() + ")");
@@ -231,22 +238,39 @@ public class LibrarianGUI extends JFrame {
             bookManager.update(book);
 
             double totalPrice = res.getTotalPrice();
+            int extendedDays = 0;
             for (JCheckBox checkBox : serviceCheckBoxes) {
                 if (checkBox.isSelected()) {
                     model.entities.PriceListItem item = (model.entities.PriceListItem) checkBox.getClientProperty("item");
-                    totalPrice += item.getPrice();
+                    if (item.getType() == model.enums.PriceListItemType.EXTENDED_RETENTION) {
+                        String daysStr = JOptionPane.showInputDialog(this, "Enter number of extra days for retention:", "Extended Retention", JOptionPane.QUESTION_MESSAGE);
+                        try {
+                            extendedDays = Integer.parseInt(daysStr);
+                            if (extendedDays <= 0) {
+                                JOptionPane.showMessageDialog(this, "Number of days must be positive.", "Error", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                            totalPrice += item.getPrice() * extendedDays;
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(this, "Invalid number of days.", "Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                    } else {
+                        totalPrice += item.getPrice();
+                    }
                     reservationServiceManager.add(new model.entities.ReservationService(
                             reservationServiceManager.getNextId(),
                             res.getId(),
                             item.getId(),
-                            1,
-                            item.getPrice()
+                            (item.getType() == model.enums.PriceListItemType.EXTENDED_RETENTION) ? extendedDays : 1,
+                            item.getPrice() * ((item.getType() == model.enums.PriceListItemType.EXTENDED_RETENTION) ? extendedDays : 1)
                     ));
                 }
             }
 
             res.setStatus(ReservationStatus.ISSUED);
             res.setPickupDate(LocalDate.now());
+            res.setReturnDate(res.getReturnDate().plusDays(extendedDays));
             res.setTotalPrice(totalPrice);
             reservationManager.update(res);
 
@@ -282,7 +306,7 @@ public class LibrarianGUI extends JFrame {
         buttonPanel.add(deleteButton);
         panel.add(buttonPanel, BorderLayout.NORTH);
 
-        String[] columns = {"ID", "Member", "Book", "Reservation Date", "Pickup Date", "Status"};
+        String[] columns = {"ID", "Member", "Book", "Reservation Date", "Pickup Date", "Return Date", "Status"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -299,6 +323,7 @@ public class LibrarianGUI extends JFrame {
                     book != null ? book.getTitle() : "N/A",
                     res.getReservationDate(),
                     res.getPickupDate(),
+                    res.getReturnDate(),
                     res.getStatus()
             });
         }
@@ -338,8 +363,16 @@ public class LibrarianGUI extends JFrame {
             int id = (int) table.getValueAt(selectedRow, 0);
             Reservation res = reservationManager.getById(id);
             if (res != null) {
-                Book book = bookManager.getById(res.getBookId());
                 ReservationStatus oldStatus = res.getStatus();
+
+                if (oldStatus == ReservationStatus.ISSUED || oldStatus == ReservationStatus.CANCELED ||
+                        oldStatus == ReservationStatus.REJECTED || oldStatus == ReservationStatus.RETURNED) {
+                    JOptionPane.showMessageDialog(this, "This reservation's status cannot be changed.",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                Book book = bookManager.getById(res.getBookId());
 
                 // Logic for confirming a reservation
                 if (newStatus == ReservationStatus.CONFIRMED && oldStatus == ReservationStatus.PENDING) {

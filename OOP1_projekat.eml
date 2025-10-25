@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component inherit-compiler-output="true" inheritJdk="true">
+	<exclude-output/>
+	<contentEntry url="file://$MODULE_DIR$"/>
+	<lib name="apiguardian-api-1.1.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/apiguardian-api-1.1.2.jar!/"/>
+	</lib>
+	<lib name="junit-jupiter-api-5.8.1 (1).jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-jupiter-api-5.8.1 (1).jar!/"/>
+	</lib>
+	<lib name="junit-jupiter-engine-5.8.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-jupiter-engine-5.8.1.jar!/"/>
+	</lib>
+	<lib name="junit-jupiter-params-5.8.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-jupiter-params-5.8.1.jar!/"/>
+	</lib>
+	<lib name="junit-platform-commons-1.8.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-platform-commons-1.8.1.jar!/"/>
+	</lib>
+	<lib name="junit-platform-engine-1.8.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-platform-engine-1.8.1.jar!/"/>
+	</lib>
+	<lib name="junit-platform-launcher-1.8.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-platform-launcher-1.8.1.jar!/"/>
+	</lib>
+	<lib name="opentest4j-1.2.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/opentest4j-1.2.0.jar!/"/>
+	</lib>
+	<lib name="xchart-3.8.8.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/xchart-3.8.8.jar!/"/>
+	</lib>
+</component>

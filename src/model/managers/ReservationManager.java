@@ -131,13 +131,19 @@ public class ReservationManager implements IManager<Reservation> {
 
     public void updateExpiredReservations() {
         LocalDate today = LocalDate.now();
+        MemberManager memberManager = new MemberManager("data/members.csv");
         for (Reservation res : reservations) {
             if (res.getStatus() == ReservationStatus.PENDING && res.getPickupDate().isBefore(today)) {
                 res.setStatus(ReservationStatus.REJECTED);
                 update(res);
             } else if (res.getStatus() == ReservationStatus.CONFIRMED && res.getPickupDate().isBefore(today)) {
                 res.setStatus(ReservationStatus.CANCELED);
-                // Here you might want to trigger the 24h ban
+                
+                model.entities.Member member = memberManager.getById(res.getMemberId());
+                if (member != null) {
+                    member.setLastCancellationDate(LocalDate.now());
+                    memberManager.update(member);
+                }
                 update(res);
             }
         }

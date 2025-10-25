@@ -282,11 +282,28 @@ public class MemberGUI extends JFrame {
                 }
                 if (book.getAvailableCopies() > 0) {
                     double totalPrice = 0;
+                    int extendedDays = 0;
                     List<model.entities.PriceListItem> selectedServices = new ArrayList<>();
+
                     for (JCheckBox checkBox : serviceCheckBoxes) {
                         if (checkBox.isSelected()) {
                             model.entities.PriceListItem item = (model.entities.PriceListItem) checkBox.getClientProperty("item");
-                            totalPrice += item.getPrice();
+                            if (item.getType() == model.enums.PriceListItemType.EXTENDED_RETENTION) {
+                                String daysStr = JOptionPane.showInputDialog(dialog, "Enter number of extra days for retention:", "Extended Retention", JOptionPane.QUESTION_MESSAGE);
+                                try {
+                                    extendedDays = Integer.parseInt(daysStr);
+                                    if (extendedDays <= 0) {
+                                        JOptionPane.showMessageDialog(dialog, "Number of days must be positive.", "Error", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                    totalPrice += item.getPrice() * extendedDays;
+                                } catch (NumberFormatException ex) {
+                                    JOptionPane.showMessageDialog(dialog, "Invalid number of days.", "Error", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            } else {
+                                totalPrice += item.getPrice();
+                            }
                             selectedServices.add(item);
                         }
                     }
@@ -298,19 +315,23 @@ public class MemberGUI extends JFrame {
                             book.getId(),
                             LocalDate.now(),
                             pickupDate,
-                            pickupDate.plusDays(settingsManager.getRentalDuration()), // Use setting
+                            pickupDate.plusDays(settingsManager.getRentalDuration() + extendedDays), // Use setting and extended days
                             ReservationStatus.PENDING,
                             totalPrice
                     );
                     reservationManager.add(res);
 
                     for (model.entities.PriceListItem service : selectedServices) {
+                        int quantity = 1;
+                        if (service.getType() == model.enums.PriceListItemType.EXTENDED_RETENTION) {
+                            quantity = extendedDays;
+                        }
                         reservationServiceManager.add(new model.entities.ReservationService(
                                 reservationServiceManager.getNextId(),
                                 reservationId,
                                 service.getId(),
-                                1,
-                                service.getPrice()
+                                quantity,
+                                service.getPrice() * quantity
                         ));
                     }
 

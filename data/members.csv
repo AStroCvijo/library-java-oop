@@ -1,5 +1,5 @@
 id,firstName,lastName,gender,birthDate,phone,address,username,password,category,membershipId,lateReturns,lastCancellationDate
-1,Milica,Milić,FEMALE,1998-07-12,0621112222,Studentska 5,2,2,STUDENT,1,0,null
+1,Milica,Milić,FEMALE,1998-07-12,0621112222,Studentska 5,2,2,STUDENT,1,0,2025-10-26
 2,Ana,Anić,FEMALE,1985-11-03,0633334444,Radnička 8,ana.anic@email.com,member456,null,2,0,null
 3,Marko,Markovic,MALE,2002-03-20,123456,Student Square 1,marko,marko,STUDENT,1,1,null
 4,Jelena,Jelenic,FEMALE,2010-09-01,234567,School Street 10,jelena,jelena,PUPIL,2,0,2025-10-22
