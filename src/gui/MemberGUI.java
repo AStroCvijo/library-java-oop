@@ -361,7 +361,7 @@ public class MemberGUI extends JFrame {
         buttonPanel.add(cancelButton);
         panel.add(buttonPanel, BorderLayout.NORTH);
 
-        String[] columns = {"ID", "Book", "Pickup", "Return", "Status"};
+        String[] columns = {"ID", "Book", "Pickup", "Return", "Status", "Total Price"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
 
         for (Reservation res : reservationManager.getReservationsByMember(mainGUI.getCurrentUser().getId())) {
@@ -369,7 +369,7 @@ public class MemberGUI extends JFrame {
             String bookTitle = (book != null) ? book.getTitle() : "Book not found";
             model.addRow(new Object[]{
                     res.getId(), bookTitle, res.getPickupDate(),
-                    res.getReturnDate(), res.getStatus()
+                    res.getReturnDate(), res.getStatus(), res.getTotalPrice()
             });
         }
 
@@ -436,7 +436,7 @@ public class MemberGUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.setBackground(UITheme.BACKGROUND_COLOR);
 
-        String[] columns = {"ID", "Book", "Pickup", "Return", "Status"};
+        String[] columns = {"ID", "Book", "Pickup", "Return", "Status", "Total Price"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
 
         for (Reservation res : reservationManager.getReservationsByMember(mainGUI.getCurrentUser().getId())) {
@@ -445,7 +445,7 @@ public class MemberGUI extends JFrame {
                 String bookTitle = (book != null) ? book.getTitle() : "Book not found";
                 model.addRow(new Object[]{
                         res.getId(), bookTitle, res.getPickupDate(),
-                        res.getReturnDate(), res.getStatus()
+                        res.getReturnDate(), res.getStatus(), res.getTotalPrice()
                 });
             }
         }
