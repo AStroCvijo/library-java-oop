@@ -10,7 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,7 +24,12 @@ class EmployeeManagerTest {
     private String testFilename = "test_employees.csv";
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        File testFile = new File(testFilename);
+        testFile.createNewFile();
+        try (PrintWriter writer = new PrintWriter(new FileWriter(testFilename))) {
+            writer.println("id,firstName,lastName,gender,birthDate,phone,address,username,password,educationLevel,yearsOfExperience,baseSalary,role");
+        }
         employeeManager = new EmployeeManager(testFilename);
     }
 

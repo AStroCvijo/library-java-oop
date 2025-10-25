@@ -7,6 +7,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,7 +20,12 @@ class ReservationServiceManagerTest {
     private String testFilename = "test_reservation_services.csv";
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        File testFile = new File(testFilename);
+        testFile.createNewFile();
+        try (PrintWriter writer = new PrintWriter(new FileWriter(testFilename))) {
+            writer.println("id,reservationId,additionalServiceId,quantity,price");
+        }
         reservationServiceManager = new ReservationServiceManager(testFilename);
     }
 

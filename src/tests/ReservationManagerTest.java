@@ -8,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,7 +22,12 @@ class ReservationManagerTest {
     private String testFilename = "test_reservations.csv";
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        File testFile = new File(testFilename);
+        testFile.createNewFile();
+        try (PrintWriter writer = new PrintWriter(new FileWriter(testFilename))) {
+            writer.println("id,memberId,bookId,reservationDate,pickupDate,returnDate,status,totalPrice");
+        }
         reservationManager = new ReservationManager(testFilename);
     }
 
