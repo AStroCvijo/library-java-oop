@@ -1,4 +1,4 @@
 id,title,author,isbn,publicationYear,genreId,totalCopies,availableCopies,status
-1,Ana Karenjina,Lav Tolstoj,9788610033647,1877,1,2,12,AVAILABLE
+1,Ana Karenjina,Lav Tolstoj,9788610033647,1877,1,2,10,BORROWED
 3,Rat i mir,Lav Tolstoj,9788661451072,1869,2,1,0,BORROWED
 4,1984,Džordž Orvel,9788661451071,1949,3,1,0,BORROWED

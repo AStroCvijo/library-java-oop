@@ -87,10 +87,12 @@ public class ReservationManager implements IManager<Reservation> {
                     LocalDate returnDate = LocalDate.parse(data[5]);
                     ReservationStatus status = ReservationStatus.valueOf(data[6]);
                     double totalPrice = Double.parseDouble(data[7]);
+                    int librarianId = (data.length >= 9) ? Integer.parseInt(data[8]) : 0;
+
 
                     Reservation reservation = new Reservation(id, memberId, bookId,
                             reservationDate, pickupDate, returnDate,
-                            status, totalPrice);
+                            status, totalPrice, librarianId);
                     reservations.add(reservation);
                 }
             }
@@ -102,7 +104,7 @@ public class ReservationManager implements IManager<Reservation> {
     @Override
     public void saveToFile() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
-            writer.println("id,memberId,bookId,reservationDate,pickupDate,returnDate,status,totalPrice");
+            writer.println("id,memberId,bookId,reservationDate,pickupDate,returnDate,status,totalPrice,librarianId");
 
             for (Reservation reservation : reservations) {
                 writer.println(reservation.getId() + "," +
@@ -112,7 +114,8 @@ public class ReservationManager implements IManager<Reservation> {
                         reservation.getPickupDate() + "," +
                         reservation.getReturnDate() + "," +
                         reservation.getStatus() + "," +
-                        reservation.getTotalPrice());
+                        reservation.getTotalPrice() + "," +
+                        reservation.getLibrarianId());
             }
         } catch (IOException e) {
             System.out.println("Error saving reservations: " + e.getMessage());

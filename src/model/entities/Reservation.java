@@ -12,12 +12,20 @@ public class Reservation {
     private LocalDate returnDate;
     private ReservationStatus status;
     private double totalPrice;
+    private int librarianId;
 
     // Constructor
     public Reservation(int id, int memberId, int bookId,
                        LocalDate reservationDate, LocalDate pickupDate,
                        LocalDate returnDate, ReservationStatus status,
                        double totalPrice) {
+        this(id, memberId, bookId, reservationDate, pickupDate, returnDate, status, totalPrice, 0);
+    }
+    
+    public Reservation(int id, int memberId, int bookId,
+                       LocalDate reservationDate, LocalDate pickupDate,
+                       LocalDate returnDate, ReservationStatus status,
+                       double totalPrice, int librarianId) {
         this.id = id;
         this.memberId = memberId;
         this.bookId = bookId;
@@ -26,6 +34,7 @@ public class Reservation {
         this.returnDate = returnDate;
         this.status = status;
         this.totalPrice = totalPrice;
+        this.librarianId = librarianId;
     }
 
     // Getter and setters
@@ -52,4 +61,7 @@ public class Reservation {
 
     public double getTotalPrice() { return totalPrice; }
     public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
+
+    public int getLibrarianId() { return librarianId; }
+    public void setLibrarianId(int librarianId) { this.librarianId = librarianId; }
 }

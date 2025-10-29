@@ -849,28 +849,19 @@ public class AdminGUI extends JFrame {
         String[] columns = {"Librarian", "Books Issued"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
 
-        List<Employee> librarians = new ArrayList<>();
-        for (Employee emp : employeeManager.getAll()) {
-            if (emp.getRole() == EmployeeRole.LIBRARIAN) {
-                librarians.add(emp);
-            }
-        }
-
-        int[] booksIssued = new int[librarians.size()];
-        int librarianIndex = 0;
+        Map<Integer, Integer> booksIssuedByLibrarian = new java.util.HashMap<>();
 
         for (model.entities.Reservation res : reservationManager.getAll()) {
-            if (res.getStatus() == ReservationStatus.ISSUED || res.getStatus() == ReservationStatus.RETURNED) {
-                if (!librarians.isEmpty()) {
-                    booksIssued[librarianIndex]++;
-                    librarianIndex = (librarianIndex + 1) % librarians.size();
-                }
+            if ((res.getStatus() == ReservationStatus.ISSUED || res.getStatus() == ReservationStatus.RETURNED) && res.getLibrarianId() != 0) {
+                booksIssuedByLibrarian.merge(res.getLibrarianId(), 1, Integer::sum);
             }
         }
 
-        for (int i = 0; i < librarians.size(); i++) {
-            Employee librarian = librarians.get(i);
-            model.addRow(new Object[]{librarian.getFirstName() + " " + librarian.getLastName(), booksIssued[i]});
+        for (Map.Entry<Integer, Integer> entry : booksIssuedByLibrarian.entrySet()) {
+            Employee librarian = employeeManager.getById(entry.getKey());
+            if (librarian != null) {
+                model.addRow(new Object[]{librarian.getFirstName() + " " + librarian.getLastName(), entry.getValue()});
+            }
         }
 
         JTable table = new JTable(model);
@@ -1008,15 +999,15 @@ public class AdminGUI extends JFrame {
         workloadChart.getStyler().setStartAngleInDegrees(90);
 
         Map<String, Integer> librarianWorkload = new java.util.HashMap<>();
-        List<Employee> librarians = employeeManager.getAll().stream().filter(e -> e.getRole() == EmployeeRole.LIBRARIAN).toList();
-        int librarianIndex = 0;
-
         for (model.entities.Reservation res : reservationManager.getAll()) {
-            if (res.getReservationDate().isAfter(LocalDate.now().minusDays(30))) {
-                if (!librarians.isEmpty()) {
-                    String librarianName = librarians.get(librarianIndex).getFirstName();
-                    librarianWorkload.merge(librarianName, 1, Integer::sum);
-                    librarianIndex = (librarianIndex + 1) % librarians.size();
+            if ((res.getStatus() == ReservationStatus.ISSUED || res.getStatus() == ReservationStatus.RETURNED) &&
+                    res.getPickupDate() != null && res.getPickupDate().isAfter(LocalDate.now().minusDays(30))) {
+                if (res.getLibrarianId() != 0) {
+                    Employee librarian = employeeManager.getById(res.getLibrarianId());
+                    if (librarian != null) {
+                        String librarianName = librarian.getFirstName() + " " + librarian.getLastName();
+                        librarianWorkload.merge(librarianName, 1, Integer::sum);
+                    }
                 }
             }
         }
@@ -1222,7 +1213,7 @@ public class AdminGUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.setBackground(UITheme.BACKGROUND_COLOR);
 
-        String[] columns = {"ID", "Member", "Book", "Reservation Date", "Pickup Date", "Return Date", "Status", "Total Price"};
+        String[] columns = {"ID", "Member", "Book", "Librarian", "Reservation Date", "Pickup Date", "Return Date", "Status", "Total Price"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -1233,10 +1224,12 @@ public class AdminGUI extends JFrame {
         for (model.entities.Reservation res : reservationManager.getAll()) {
             Member mem = memberManager.getById(res.getMemberId());
             Book book = bookManager.getById(res.getBookId());
+            Employee librarian = employeeManager.getById(res.getLibrarianId());
             model.addRow(new Object[]{
                     res.getId(),
                     mem != null ? mem.getFirstName() + " " + mem.getLastName() : "N/A",
                     book != null ? book.getTitle() : "N/A",
+                    librarian != null ? librarian.getFirstName() + " " + librarian.getLastName() : "N/A",
                     res.getReservationDate(),
                     res.getPickupDate(),
                     res.getReturnDate(),

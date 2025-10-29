@@ -272,6 +272,7 @@ public class LibrarianGUI extends JFrame {
             res.setPickupDate(LocalDate.now());
             res.setReturnDate(res.getReturnDate().plusDays(extendedDays));
             res.setTotalPrice(totalPrice);
+            res.setLibrarianId(mainGUI.getCurrentUser().getId());
             reservationManager.update(res);
 
             JOptionPane.showMessageDialog(dialog, "Book issued successfully!");
